@@ -59,12 +59,13 @@ const JSON_TYPE = { httpMetadata: { contentType: "application/json" } };
 export class CvStore {
   constructor(private bucket: R2Bucket) {}
 
-  summary(meta: CvMeta, origin: string): CvSummary {
+  // `base` is the public URL prefix, for example "https://akiadi.com/cv".
+  summary(meta: CvMeta, base: string): CvSummary {
     return {
       id: meta.id,
       name: meta.name,
       slug: meta.slug,
-      url: `${origin}/${meta.slug}`,
+      url: `${base}/${meta.slug}`,
       status: statusOf(meta),
       updatedAt: meta.updatedAt,
       publishedAt: meta.publishedAt,

@@ -4,7 +4,7 @@ A personal CV editor with a draft/publish workflow and public CV pages. Edit a C
 duplicate it to tailor it for a job offer, and publish it to a clean, shareable,
 printable URL. Drafts never reach the public page until they are explicitly published.
 
-Status: **first product change (CHG-002) live** at https://cv-online.idaika.workers.dev (fictional sample CVs for now). See the [brief](docs/product/brief.md),
+Status: **live.** CHG-004 moves the address to `https://akiadi.com/cv/{slug}` (editor at `/cv/admin/`); until that deployment is verified, the current address is `https://cv-online.idaika.workers.dev/{slug}` ([CHG-004 spec](docs/specs/CHG-004-custom-domain-cv-path/spec.md)). See the [brief](docs/product/brief.md),
 [MVP scope](docs/product/mvp.md), and [requirements](docs/product/prd.md).
 
 ## How this repository is built
@@ -39,7 +39,7 @@ Requires Node.js 22+ (developed with 24 LTS). Run `npm install` once.
 | --- | --- | --- |
 | Worker tests | `npm test` | Integration tests in the local Workers runtime with a simulated R2 bucket and test-only credentials. Registered as `worker-tests` (product, focused). |
 | Typecheck | `npm run typecheck` | TypeScript, no emit. Registered as `typecheck` (product, standard). |
-| Local server | `npm run dev` | `http://localhost:8787`. Needs `.dev.vars` (copy `.dev.vars.example`; ignored by Git). |
+| Local server | `npm run dev` | Editor at `http://localhost:8787/cv/admin/`, CVs at `/cv/{slug}`. Needs `.dev.vars` (copy `.dev.vars.example`; ignored by Git). |
 | Seed sample CVs (local) | `npm run seed:local` | Writes the two fictional `sample-*` CVs as drafts to the local bucket; removes their public snapshots. |
 | Seed sample CVs (remote) | `npm run seed:remote` | Same, against the real bucket. Only touches `sample-*` keys. Requires Wrangler login. |
 | Import the predecessor CVs (one-off) | `node import/import-cvs.mjs --dry-run [--preview private/import-preview]`, then `--local` or `--remote` | Reads the CVs exported from the predecessor (`private/director.html`, `private/senior-pm.html`), cleans both (self-checked), uploads them as drafts, never overwrites, and removes the `sample-*` CVs. Prints only slugs, sizes, and hashes. `--remote` only with the owner's authorization ([CHG-003](docs/specs/CHG-003-import-existing-cvs/plan.md)). |
@@ -73,7 +73,7 @@ One-time setup, done by the owner. Secrets are never written to the repository o
 2. `npx wrangler r2 bucket create cv-online`: the dedicated bucket ([ADR-0002](docs/adr/0002-cv-storage-in-dedicated-r2-bucket.md)).
 3. `npx wrangler secret put ADMIN_USER` and `npx wrangler secret put ADMIN_PASSWORD`: the editor credentials ([ADR-0003](docs/adr/0003-editor-authentication-with-basic-auth.md)). Use a long random password. Change it the same way.
 
-Each release: `npm run deploy`. Roll back code with `npx wrangler rollback`. Without the two secrets, the editor answers 503 and stays closed.
+Each release: `npm run deploy`. The Worker is attached to the Custom Domain `akiadi.com` and serves the app under `BASE_PATH` (`/cv`); the `workers.dev` address and Preview URLs are disabled ([ADR-0004](docs/adr/0004-public-urls-under-akiadi-com-cv.md)). `npx wrangler rollback` restores a previous version (code, vars, and bindings) but not triggers: the Custom Domain stays attached and `workers.dev` stays off. For a full revert, also detach `akiadi.com` from the Worker in the dashboard (Settings → Domains & Routes) and redeploy a previous commit. Attaching the domain and disabling `workers.dev` in one deploy can cause a short gap while the certificate is issued. Without the two secrets, the editor answers 503 and stays closed.
 
 ### Framework maintenance commands
 

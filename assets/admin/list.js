@@ -40,7 +40,7 @@ function render(cvs) {
     tr.append(el('td', {}, formatDate(cv.updatedAt)));
 
     const actions = el('td', { class: 'actions' });
-    actions.append(el('a', { class: 'btn primary', href: '/admin/edit?id=' + encodeURIComponent(cv.id) }, 'Edit'));
+    actions.append(el('a', { class: 'btn primary', href: 'edit?id=' + encodeURIComponent(cv.id) }, 'Edit'));
     if (cv.status !== 'Draft') {
       const copy = el('button', { class: 'btn', type: 'button' }, 'Copy link');
       copy.onclick = async () => {
@@ -57,7 +57,7 @@ function render(cvs) {
   content.append(table);
 }
 
-fetch('/admin/api/cvs')
+fetch('api/cvs')
   .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
   .then(render)
   .catch((e) => {

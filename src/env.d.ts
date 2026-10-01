@@ -5,6 +5,7 @@ declare namespace Cloudflare {
     CV_BUCKET: R2Bucket;
     ADMIN_USER?: string;
     ADMIN_PASSWORD?: string;
+    BASE_PATH?: string;
   }
 }
 

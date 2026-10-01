@@ -1,6 +1,6 @@
 # Plan: CHG-004 | Serve the application at akiadi.com/cv
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -72,7 +72,7 @@ Decision recorded in [ADR-0004](../../adr/0004-public-urls-under-akiadi-com-cv.m
 | Security | The auth gate still applies to everything whose stripped path is under `/admin`, including assets and unknown paths. The prefix strip runs before routing, so `/cv/admin…` is the only way in. Old `/admin/` becomes 404, not an open path. The same-origin check is unchanged. `workers_dev: false` and `preview_urls: false` remove alternative addresses, which shrinks the attack surface. Tests cover auth, CSRF, and fail closed under the prefix. |
 | Failures | Custom Domain provisioning (DNS + certificate) can take minutes; the smoke test retries before concluding. If the attach fails, the old configuration is redeployed from the previous commit (`wrangler deploy` at `6c91c70`'s config). |
 | Observability | Unchanged; log lines carry the stripped path. |
-| Rollout and recovery | Deploy only with the owner's explicit authorization. Recovery: redeploy the previous commit, which restores `workers.dev`. `wrangler rollback` alone restores code but not the triggers, so a config redeploy is the reliable path. |
+| Rollout and recovery | Deploy only with the owner's explicit authorization. `wrangler rollback` restores a previous version (code, vars, bindings) but not triggers: the Custom Domain stays attached and `workers.dev` stays off. A full revert also needs `akiadi.com` detached from the Worker in the dashboard, plus a redeploy of the previous commit. Attaching the domain and disabling `workers.dev` in one deploy can cause a short gap while the certificate is issued; acceptable, because no link has been shared. (Corrected after review F2/R1.) |
 
 ## Implementation steps
 
@@ -108,18 +108,51 @@ Decision recorded in [ADR-0004](../../adr/0004-public-urls-under-akiadi-com-cv.m
 
 ## Deviations and decisions during execution
 
-None recorded yet.
+None material. Observations (2026-10-01):
+
+1. **`wrangler dev` rewrites the request host** to the configured route (`http://akiadi.com`), so the local list shows `http://akiadi.com/cv/{slug}`. Production serves `https://`; checked in the smoke test.
+2. **Tests run with the production value** of `BASE_PATH` (`/cv`), read from `wrangler.jsonc`, through one helper constant (`APP`).
+3. **Review corrections** (see *Independent review*):
+   - `basePath()` treats a blank or all-slash value as the site root;
+   - 15 tests cover the prefix modes, boundary shapes, and query-string preservation;
+   - documentation fixes (status wording, rollback accuracy, ADR-0004 shared-domain trigger, `/cv/{slug}` in the PRD).
 
 ## Completion evidence
 
-Verified version or diff: pending. Relevant environment: pending.
+Verified version or diff: working tree on top of `aeca4cc` (uncommitted at the time of verification). Environment: Windows 11, Node.js 24.21.0, Wrangler 4.145.0, Vitest 4.1.11 + Workers pool, local `wrangler dev`.
 
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-07 | Not run | Pending. |
+| AC-01 | Passed (local); production pending | Tests: public CV at `/cv/{slug}` with the public CSP and no challenge. Local: publish → `/cv/senior-pm` 200 with CSP, then unpublished again. |
+| AC-02 | Passed (local); production pending | `test/base-path.test.ts`: `/`, `/cv`, `/cv/`, `/cvx/…`, `/other/page`, `/favicon.ico`, and a published CV at the old root URL → 404. |
+| AC-03 | Passed (local); production pending | `/cv/admin…` gets the same 401 coverage as before (the auth suite moved under the prefix). Old `/admin`, `/admin/`, `/admin/editor.js`, and `/admin/api/cvs` → 404 even with valid credentials. |
+| AC-04 | Passed (local); production pending (owner) | API suite under the prefix (save, publish, unpublish, discard, CSRF). Local browser: list and editor load under `/cv/admin/` with relative URLs; list links `/cv/admin/edit?id=…`; back link `/cv/admin/`; public URLs carry `/cv/`; asset redirect re-prefixed (test). Structural checks only, with no real CV content shown. |
+| AC-05 | Pending | After deployment. Config: `workers_dev: false`, `preview_urls: false`. |
+| AC-06 | Pending | Production metadata hashes before (`3b4da779438c…`, `58e2ce61d5b7…`, both unpublished) and after deployment. |
+| AC-07 | Passed | `npm test` 101/101: all 72 earlier cases under `/cv`, plus 29 base-path cases (14 initial, 15 after review). `npm run typecheck` clean. |
+| Dry run | Passed | `wrangler deploy --dry-run`: bindings `CV_BUCKET` (cv-online), `ASSETS`, `BASE_PATH="/cv"`. |
 
-Independent review: required (L3). Not started.
+Independent review (L3), 2026-10-01:
+- **Reviewer:** the `sdd-independent-review` Claude subagent in a fresh context, with read-only tools and no shell. It received the spec, plan, ADR-0004, the complete patch (16 files), and the evidence. It is the same model family as the implementer, so it is not a human review and grants no approval.
+- **Round 1:** no blocking findings. Confirmed sound:
+  - prefix boundary cases, including encoded and dot-segment paths;
+  - the auth boundary after stripping, with old `/admin` paths returning 404;
+  - Location rewrite on the same origin only;
+  - CSRF unchanged;
+  - relative URLs resolve correctly;
+  - the configuration keys and the single R2 binding.
 
-Outstanding items / exceptions: not evaluated. A blocked check does not count as passed.
+  Five non-blocking findings, all fixed:
+  - **F1:** docs claimed the deployment had happened, and the README linked to the 404 root.
+  - **F2:** the rollback text was inaccurate.
+  - **F3:** no tests for `basePath()` modes, boundary shapes, or query preservation. Code and tests updated.
+  - **F4:** ADR-0004 needed a trigger to re-evaluate same-origin trust when the domain is shared.
+  - **F5:** the PRD still used `/{slug}`.
+- **Round 2** (same reviewer context, focused on the corrections): F1–F5 resolved, no blocking findings. Two wording leftovers, both fixed:
+  - **R1:** the plan's rollback row still had the old wording.
+  - **R2:** the README pointed to a plan that does not state the current address.
+- **No further re-review needed** unless routing code changes again.
+
+Outstanding items / exceptions: deployment (owner authorization); production checks AC-01 to AC-06.
 
 Delivery: not deployed. Deployment requires the owner's explicit authorization at that moment.

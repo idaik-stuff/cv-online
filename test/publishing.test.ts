@@ -1,6 +1,6 @@
 import { env } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
-import { api, get, ORIGIN, sampleHtml, seedCv } from "./helpers";
+import { api, APP, get, sampleHtml, seedCv } from "./helpers";
 
 async function summaryOf(id: string) {
   const res = await api("/admin/api/cvs");
@@ -21,7 +21,7 @@ describe("AC-04: CV list", () => {
 
     expect(byId[draftOnly.id]).toMatchObject({
       name: draftOnly.name,
-      url: `${ORIGIN}/${draftOnly.slug}`,
+      url: `${APP}/${draftOnly.slug}`,
       status: "Draft",
       updatedAt: draftOnly.updatedAt,
     });

@@ -13,7 +13,7 @@ Sources: [brief](brief.md) and [MVP](mvp.md). This PRD retains capabilities and 
 | CAP-03 | **Draft editing**: edit with the existing rich-text tools and save the draft, available from any device. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
 | CAP-04 | **Publishing**: publish (draft → public snapshot), unpublish, and discard draft changes. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
 | CAP-05 | **CV lifecycle**: create, duplicate, rename, and delete CVs. | planned | TBD |
-| CAP-06 | **Public CV page**: clean, responsive, printable page at `/{slug}`, plus a "not found" page. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
+| CAP-06 | **Public CV page**: clean, responsive, printable page at `/cv/{slug}`, plus a "not found" page. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
 | CAP-07 | **Discoverability control**: title, description, and link-preview metadata; per-CV "hide from search engines". | planned | TBD |
 | CAP-08 | **Initial import**: bring in the two existing CVs from the current editor. | planned | TBD |
 
@@ -24,7 +24,7 @@ Possible statuses when completing the document: `planned`, `partial`, `implement
 - **R1 Draft isolation.** Saving a draft never changes what the public sees. Public content changes only through an explicit publish or unpublish.
 - **R2 Snapshot publishing.** Publishing stores an exact copy of the draft at that moment. Later draft edits do not affect it.
 - **R3 Status is derived.** A CV is `Draft` (not currently published), `Published` (public equals draft), or `Unpublished changes` (published, and the draft differs).
-- **R4 Stable public URLs.** A slug is unique. It contains only lowercase letters, digits, and hyphens. It can be changed only while the CV has never been published, so links already shared never break silently.
+- **R4 Stable public URLs.** Published CVs live at `https://akiadi.com/cv/{slug}` ([ADR-0004](../adr/0004-public-urls-under-akiadi-com-cv.md), CHG-004). A slug is unique. It contains only lowercase letters, digits, and hyphens. It can be changed only while the CV has never been published, so links already shared never break silently.
 - **R5 Duplicate copies the draft.** A duplicate starts as a new `Draft`, with a new name and slug and nothing published.
 - **R6 Unpublish is reversible; delete is not.** Unpublish keeps the CV and its draft. Delete requires explicit confirmation and removes the CV permanently.
 - **R7 Indexing default.** All CVs are equal, whether created new or duplicated. Every published CV is indexable by default. Each CV has an optional "hide from search engines" setting, off by default. *(Owner, 2026-10-01.)*
@@ -71,7 +71,7 @@ Each of these will be confirmed or discarded through an ADR in the first product
 | --- | --- | --- |
 | CV | One version of the owner's résumé (e.g. "Innovation Director", "Director – Acme"), typically one per application. | Has exactly one draft and at most one published snapshot. A duplicated CV is a CV like any other. |
 | Name | Internal label shown only in the editor. | Not unique; free text. |
-| Slug | The public URL segment, `/{slug}`. | Unique; format and change rules in R4. |
+| Slug | The public URL segment, `/cv/{slug}`. | Unique; format and change rules in R4. |
 | Draft | The working content being edited. | Never public (R1). |
 | Published snapshot | The exact content shown publicly. | Copied from the draft on publish (R2). |
 | Status | `Draft`, `Published`, or `Unpublished changes`. | Derived, never stored by hand (R3). |

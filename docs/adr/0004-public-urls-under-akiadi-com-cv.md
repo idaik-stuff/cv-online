@@ -32,3 +32,5 @@ The Worker is attached to `akiadi.com` as a Custom Domain, which also manages DN
 ## Validation and future review
 
 Validated by the CHG-004 checks, including the production check of AC-01 to AC-05. Revisit when another project needs `akiadi.com`, or if the URL format must change after links have been shared; that would need redirects.
+
+**Trigger when the domain is shared.** Narrowing this Worker to `/cv` puts other content on the same origin as the editor. The editor's protections assume it is alone on that origin: the same-origin CSRF check, CSP `script-src 'self'`, and the browser's automatic Basic Auth credentials. A script elsewhere on `akiadi.com` could call `/cv/admin/api/…` with the owner's cached credentials. That change must re-evaluate them, for example by moving the editor to its own subdomain.

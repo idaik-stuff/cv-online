@@ -3,6 +3,12 @@
   "name": "cv-online",
   "main": "src/worker.ts",
   "compatibility_date": "2026-08-22",
+  // Public address (ADR-0004): CVs at https://akiadi.com/cv/{slug}, editor at /cv/admin/.
+  // The Worker answers for the whole hostname and returns "not found" outside BASE_PATH.
+  "routes": [{ "pattern": "akiadi.com", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": { "BASE_PATH": "/cv" },
   // Editor UI files. Every request goes through the Worker first, so
   // /admin assets are only served after authentication (ADR-0003).
   "assets": {

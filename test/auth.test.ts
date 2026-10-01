@@ -1,7 +1,7 @@
 import { env, SELF } from "cloudflare:test";
 import { describe, expect, it } from "vitest";
 import worker from "../src/worker";
-import { basic, get, GOOD_AUTH, ORIGIN, sampleHtml, seedCv } from "./helpers";
+import { APP, basic, get, GOOD_AUTH, sampleHtml, seedCv } from "./helpers";
 
 const PROTECTED = [
   "/admin",
@@ -30,7 +30,7 @@ describe("AC-01 / AC-02: editor access is refused without valid credentials", ()
       [`/admin/api/cvs/${cv.id}/discard`, "POST"],
     ];
     for (const [path, method] of calls) {
-      const res = await SELF.fetch(ORIGIN + path, { method, body: method === "GET" ? undefined : "x" });
+      const res = await SELF.fetch(APP + path, { method, body: method === "GET" ? undefined : "x" });
       expect(res.status, `${method} ${path}`).toBe(401);
       expect(await res.text()).not.toContain(secret);
     }
@@ -61,9 +61,9 @@ describe("AC-03: the owner signs in", () => {
   });
 
   it("redirects /admin to /admin/", async () => {
-    const res = await SELF.fetch(`${ORIGIN}/admin`, { headers: { Authorization: GOOD_AUTH }, redirect: "manual" });
+    const res = await SELF.fetch(`${APP}/admin`, { headers: { Authorization: GOOD_AUTH }, redirect: "manual" });
     expect(res.status).toBe(302);
-    expect(res.headers.get("Location")).toBe(`${ORIGIN}/admin/`);
+    expect(res.headers.get("Location")).toBe(`${APP}/admin/`);
   });
 });
 
@@ -88,7 +88,7 @@ describe("CSRF: writes must come from the editor's own origin", () => {
     const cv = await seedCv({ draft: sampleHtml("draft"), published });
     const metaBefore = await (await env.CV_BUCKET.get(`cvs/${cv.id}/meta.json`))!.text();
 
-    const res = await SELF.fetch(`${ORIGIN}/admin/api/cvs/${cv.id}/${action}`, {
+    const res = await SELF.fetch(`${APP}/admin/api/cvs/${cv.id}/${action}`, {
       method,
       headers: { Authorization: GOOD_AUTH, ...extra },
       body: method === "PUT" ? sampleHtml("attacker") : undefined,
@@ -109,7 +109,7 @@ describe("Fail closed: editor stays shut when the secrets are missing", () => {
   ])("%s → 503 with no editor content", async (_label, override) => {
     const brokenEnv = { ...env, ...override } as Env;
     for (const path of ["/admin/", "/admin/api/cvs"]) {
-      const req = new Request<unknown, IncomingRequestCfProperties>(ORIGIN + path, { headers: { Authorization: basic("", "") } });
+      const req = new Request<unknown, IncomingRequestCfProperties>(APP + path, { headers: { Authorization: basic("", "") } });
       const res = await worker.fetch(req, brokenEnv);
       expect(res.status, path).toBe(503);
       const body = await res.text();

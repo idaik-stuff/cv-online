@@ -2,6 +2,9 @@ import { env, SELF } from "cloudflare:test";
 import { sha256, type CvMeta } from "../src/store";
 
 export const ORIGIN = "https://cv.example";
+// The app is served under BASE_PATH from wrangler.jsonc (ADR-0004).
+export const BASE = "/cv";
+export const APP = ORIGIN + BASE;
 
 export function basic(user: string, password: string): string {
   return "Basic " + btoa(`${user}:${password}`);
@@ -38,8 +41,9 @@ export async function seedCv(opts: { slug?: string; draft?: string; published?: 
   return meta;
 }
 
+// Paths are relative to the app (BASE is prepended).
 export function get(path: string, headers: Record<string, string> = {}): Promise<Response> {
-  return SELF.fetch(ORIGIN + path, { headers });
+  return SELF.fetch(APP + path, { headers });
 }
 
 // An authenticated, same-origin editor call (what the editor UI sends).
@@ -49,5 +53,5 @@ export function api(path: string, method = "GET", body?: string): Promise<Respon
     headers["Origin"] = ORIGIN;
     headers["Sec-Fetch-Site"] = "same-origin";
   }
-  return SELF.fetch(ORIGIN + path, { method, headers, body });
+  return SELF.fetch(APP + path, { method, headers, body });
 }

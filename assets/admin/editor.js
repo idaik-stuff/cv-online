@@ -57,7 +57,7 @@ function setCv(summary) {
 
 /* ----- API ----- */
 async function call(path, method = 'GET', body) {
-  const res = await fetch('/admin/api/cvs/' + encodeURIComponent(id) + path, {
+  const res = await fetch('api/cvs/' + encodeURIComponent(id) + path, {
     method,
     body,
     headers: body ? { 'Content-Type': 'text/html; charset=utf-8' } : {},
