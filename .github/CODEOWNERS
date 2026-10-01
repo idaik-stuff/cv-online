@@ -1,0 +1,14 @@
+# Real owners must have write access; teams must be visible.
+# Add optional product ownership above the protected block. Keep this block last.
+/.github/ @idaik-stuff
+/.sdd/ @idaik-stuff
+/.agents/ @idaik-stuff
+/.claude/ @idaik-stuff
+/.cursor/ @idaik-stuff
+/.codex/ @idaik-stuff
+/scripts/ @idaik-stuff
+/AGENTS.md @idaik-stuff
+/CLAUDE.md @idaik-stuff
+/README.md @idaik-stuff
+/docs/development/ @idaik-stuff
+/docs/templates/ @idaik-stuff
