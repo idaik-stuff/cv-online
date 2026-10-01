@@ -37,7 +37,9 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
 
 | AC | Check | Command / location | Expected |
 | --- | --- | --- | --- |
-| AC-01–AC-03 | Hook input simulation | `printf '<lref> <lsha> <rref> <rsha>\n' \| sh scripts/hooks/pre-push origin url` | Exit codes per the spec |
+| AC-01 | Hook input: push to `refs/heads/main` | `printf '<lref> <lsha> refs/heads/main <rsha>\n' \| sh scripts/hooks/pre-push origin url` | Exit 1 with the rule message |
+| AC-02 | Hook input: push to another branch; push of a tag | Same, with `refs/heads/<branch>` and `refs/tags/<tag>` | Exit 0 |
+| AC-03 | Hook input: mixed push including main; deletion of main | Same, with two lines, and with `(delete)` as the local ref | Exit 1 |
 | AC-04 | Real dry run | `git config core.hooksPath scripts/hooks`, then `git push --dry-run origin HEAD:main` | Refused by the hook |
 | AC-05 | Read the README | `README.md` | Documented |
 | AC-06 | PR gate | GitHub Actions | Passes |
