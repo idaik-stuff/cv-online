@@ -1,39 +1,27 @@
-# Lightweight SDD
+# cv-online
 
-Framework version: `1.0.0` | License: [MIT](LICENSE)
+A personal CV editor with a draft/publish workflow and public CV pages. Edit a CV,
+duplicate it to tailor it for a job offer, and publish it to a clean, shareable,
+printable URL. Drafts never reach the public page until they are explicitly published.
 
-A lightweight spec-driven development (SDD) framework for teams working with AI coding
-agents. It classifies every change by risk (L0–L3), asks for a spec and plan only when
-the risk warrants them, verifies with real commands, and requires an independent
-review for the riskiest changes. It ships agent workflows for Claude Code, Codex,
-Cursor, and Copilot VS Code, deterministic local checks, and an optional GitHub
-Actions gate.
+Status: **product defined, not yet implemented.** See the [brief](docs/product/brief.md),
+[MVP scope](docs/product/mvp.md), and [requirements](docs/product/prd.md).
 
-This repository is a template: create your project from it and replace the product
-placeholders in `docs/product/` and `docs/architecture/` with your own.
+## How this repository is built
 
-New to the framework? Start with the [manual](docs/manual/README.md): concepts,
-adoption, working a change, verification and CI, agents, practices, and a complete
-worked example.
+This project is developed with **Lightweight SDD** (framework version `1.0.0`, MIT), a
+spec-driven development framework for working with AI coding agents. Every change is
+classified by risk (L0–L3); L2/L3 changes get a spec and a plan in
+[`docs/specs/`](docs/specs/README.md), durable decisions are recorded as
+[ADRs](docs/adr/README.md), checks run through `scripts/verify`, and the riskiest
+changes require an independent review.
 
-## Quick start
+- Permanent rules and routing: [AGENTS.md](AGENTS.md)
+- Gates and verification: [methodology](docs/development/methodology.md)
+- Framework manual: [docs/manual](docs/manual/README.md)
 
-1. Create a repository from this template (**Use this template** on GitHub), or merge
-   the framework deliberately into an existing repository. Preserve existing
-   organization instructions, permissions, documents, and configurations.
-2. Check that the framework is healthy:
-   `python3 scripts/verify standard --target framework`.
-3. Complete [the brief](docs/product/brief.md) and [the MVP scope](docs/product/mvp.md)
-   first. Add only necessary cross-cutting requirements to [the PRD](docs/product/prd.md).
-   Describe in [architecture](docs/architecture/overview.md) what actually exists.
-   Proposed architecture belongs in the first plan and, when justified, an ADR.
-4. When the stack exists, register its real checks in `.sdd/verification.json`
-   (see [connecting the product](docs/development/automation.md#connecting-the-product)).
-5. Optionally activate the CI gate following the
-   [activation guide](docs/development/ci-enforcement.md#activation-sequence).
-
-[AGENTS.md](AGENTS.md) contains permanent rules. [The methodology](docs/development/methodology.md)
-defines gates; [the documentation index](docs/README.md) identifies each canonical source.
+Real CV content is never committed. Local personal data lives in the ignored
+`private/` folder; the repository will use a fictional sample CV.
 
 ## Commands
 
