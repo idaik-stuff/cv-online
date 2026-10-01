@@ -1,6 +1,6 @@
 # Plan: CHG-010 | Pin Node.js 24 in the CI verify job
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -77,12 +77,17 @@ None recorded yet.
 
 ## Completion evidence
 
+Verified version or diff: branch `chg-010-ci-node-24` (base `b36c737`).
+
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-04 | Not run | Pending. |
+| AC-01 | Passed | `git diff` of `sdd.yml`: one step added to `verify` only, after `setup-python`: `actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0`, `node-version: '24.21.0'`, `package-manager-cache: false`. The `policy` and `gate` jobs are unchanged. |
+| AC-02 | Pending | PR gate and job log. |
+| AC-03 | Pending | Re-run of PR #4 after merge. |
+| AC-04 | Passed | `verify broad --base b36c737 --level L3 --change CHG-010-ci-node-24` passed, including `automation-tests` (which contain the workflow policy tests in `scripts/tests/test_ci_workflow.py`). |
 
 Independent review: required (L3). Not started.
 
-Outstanding items / exceptions: AC-03 after merge.
+Outstanding items / exceptions: AC-02, AC-03.
 
 Delivery: not merged.
