@@ -23,7 +23,7 @@ Possible statuses when completing the document: `planned`, `partial`, `implement
 
 - **R1 Draft isolation.** Saving a draft never changes what the public sees. Public content changes only through an explicit publish or unpublish.
 - **R2 Snapshot publishing.** Publishing stores an exact copy of the draft at that moment. Later draft edits do not affect it.
-- **R3 Status is derived.** A CV is `Draft` (never published), `Published` (public equals draft), or `Changes pending` (published, and the draft differs).
+- **R3 Status is derived.** A CV is `Draft` (not currently published), `Published` (public equals draft), or `Unpublished changes` (published, and the draft differs).
 - **R4 Stable public URLs.** A slug is unique. It contains only lowercase letters, digits, and hyphens. It can be changed only while the CV has never been published, so links already shared never break silently.
 - **R5 Duplicate copies the draft.** A duplicate starts as a new `Draft`, with a new name and slug and nothing published.
 - **R6 Unpublish is reversible; delete is not.** Unpublish keeps the CV and its draft. Delete requires explicit confirmation and removes the CV permanently.
@@ -74,6 +74,6 @@ Each of these will be confirmed or discarded through an ADR in the first product
 | Slug | The public URL segment, `/{slug}`. | Unique; format and change rules in R4. |
 | Draft | The working content being edited. | Never public (R1). |
 | Published snapshot | The exact content shown publicly. | Copied from the draft on publish (R2). |
-| Status | `Draft`, `Published`, or `Changes pending`. | Derived, never stored by hand (R3). |
+| Status | `Draft`, `Published`, or `Unpublished changes`. | Derived, never stored by hand (R3). |
 | Owner | The only person who can edit. | All editor access requires her identity (NFR-01). |
 | Reader | Anyone opening a public link. | Read-only access to published snapshots. |
