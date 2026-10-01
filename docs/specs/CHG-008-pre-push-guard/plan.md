@@ -1,6 +1,6 @@
 # Plan: CHG-008 | Local guard against pushes to main
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -54,12 +54,20 @@ None recorded yet.
 
 ## Completion evidence
 
+Verified version or diff: branch `chg-008-pre-push-guard` (base `9e9f232`). Environment: Windows 11, Git for Windows `sh`.
+
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-06 | Not run | Pending. |
+| AC-01 | Passed | Push line to `refs/heads/main` → exit 1 with the rule message. |
+| AC-02 | Passed | Branch `refs/heads/chg-008` → exit 0; tag `refs/tags/v1` → exit 0. |
+| AC-03 | Passed | Mixed push (a branch plus `main`) → exit 1; deletion of `main` → exit 1. |
+| AC-04 | Passed | With `core.hooksPath scripts/hooks`, `git push --dry-run origin HEAD:main` → refused by the hook ("failed to push some refs"), exit 1. Control: a dry-run push of the change branch → allowed, exit 0. |
+| AC-05 | Passed | README *Change workflow*: install row with the limits from the spec. |
+| AC-06 | Pending | PR gate. |
+| File properties | Passed | Git mode `100755`; no CR characters; `.gitattributes` forces LF. |
 
 Independent review: required (L3). Not started.
 
 Outstanding items / exceptions: none.
 
-Delivery: not merged.
+Delivery: not merged. The hook is installed in the owner's working clone.

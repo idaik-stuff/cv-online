@@ -37,6 +37,7 @@ Every change goes through its own branch and a pull request. `main` changes only
 
 | Operation | Command | Scope / prerequisites |
 | --- | --- | --- |
+| Install the push guard (once per clone) | `git config core.hooksPath scripts/hooks` | Refuses pushes to `main` ([CHG-008](docs/specs/CHG-008-pre-push-guard/plan.md)). A local guard, not a trust boundary: `--no-verify` or not installing it bypasses it. It replaces any hooks in `.git/hooks`, guards pushes only (not local commits), and has the branch name `main` fixed. |
 | Start a change | `git switch -c <change-id>` from an up-to-date `main` | For example `chg-005-html-source-editing`. |
 | Open the pull request | `gh pr create --fill` then complete the template metadata (`Change-Level`, `Change-ID`) | Triggers `sdd-gate`. Merge only when it passes and the owner approves. |
 

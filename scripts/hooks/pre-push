@@ -1,0 +1,24 @@
+#!/bin/sh
+# Refuses pushes to main (AGENTS.md: one branch and one pull request per
+# change). Install once per clone:
+#   git config core.hooksPath scripts/hooks
+#
+# Limits (CHG-008):
+# - A local guard, not a trust boundary: bypass with --no-verify or by not
+#   installing it. Server-side enforcement is not available on this plan.
+# - core.hooksPath replaces .git/hooks; add any other hooks to this folder.
+# - Guards pushes only, not local commits on main.
+# - The branch name is fixed; update it if the default branch is renamed.
+
+protected="refs/heads/main"
+
+# git passes one line per ref: <local ref> <local sha> <remote ref> <remote sha>
+while read -r local_ref local_sha remote_ref remote_sha; do
+  if [ "$remote_ref" = "$protected" ]; then
+    echo "pre-push: direct pushes to main are not allowed." >&2
+    echo "Push the change branch and open a pull request instead (see AGENTS.md)." >&2
+    exit 1
+  fi
+done
+
+exit 0
