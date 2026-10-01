@@ -96,7 +96,7 @@ Verified version or diff: branch head `3ff2627` (registry final), plus documenta
 | --- | --- | --- |
 | AC-01 | Passed | Fresh local clone of `3ff2627`, without `node_modules`: `verify broad --base 8c59abe --level L3 --change CHG-007-ci-product-checks` → passed (product-install 6.6 s, worker-tests, typecheck, and all framework checks). Direct run printed `v24.21.0` / `11.19.0` and the approval probe passed. |
 | AC-02 | Passed | Working checkout, same command, after the hardening → passed. An earlier run was blocked by stale processes (deviation 2). |
-| AC-03 | Pending | Gate on this PR (framework target). |
+| AC-03 | Passed | [PR #2](https://github.com/idaik-stuff/cv-online/pull/2), head `1505045` ([Actions run 36914809658](https://github.com/idaik-stuff/cv-online/actions/runs/36914809658)): `sdd-policy`, `sdd-verify`, and `sdd-gate` pass on the framework target; merge state `CLEAN`. The owner re-acceptance commit triggers a new run, which must also pass before merge. |
 | AC-04 | Pending (follow-up) | First product PR: cite the CI **job log** for Node/npm versions (they are not in the `verify-*.json` artifact). |
 | AC-05 | Passed | Framework matcher: `scripts/hooks/pre-push` is a framework path with `ci-governance` L3. Control: `src/worker.ts` is not a framework path. |
 | Guard negatives | Passed | A planted npm is refused; an npm without approvals fails without installing. |
@@ -117,9 +117,9 @@ Independent review: round 1 by the `sdd-independent-review` subagent (fresh cont
 - **Round 2 (re-review, same reviewer context):** no blocking findings; F1–F6 resolved.
   - R1 (approach step 1 and deviation order) and R2 (reviewed-diff controls, softened wording) are fixed.
   - R3 is left to AC-04: the probe's behavior on a real older npm will be seen when the runner's npm version shows in the CI log.
-  - R4: the owner's re-acceptance of the tightened AC-04 and the npm uncertainty is pending and is requested with the PR #2 merge approval (recorded in the spec once given).
+  - R4: the owner re-accepted the tightened AC-04 and the npm uncertainty on 2026-10-01; recorded in the spec.
 
 Outstanding items / exceptions:
 - **AC-04:** observe on the first product PR. If it fails because of the runner's Node or npm, open an L3 follow-up to pin them; never skip the check.
 
-Delivery: not merged.
+Delivery: to be merged by the owner after a passing gate. The plan stays `in-progress` until AC-04 is observed on the first product PR; the spec is then marked `implemented`.

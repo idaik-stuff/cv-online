@@ -80,7 +80,7 @@ Scope acceptance: accepted by Idaika Iglesias on 2026-10-01. The runner-Node unc
 
 **Revision after the independent review** (it tightens the spec and widens nothing):
 - AC-04 and the runner uncertainty now include npm install-script approvals.
-- **Re-acceptance:** pending the owner's confirmation; requested together with the PR merge approval.
+- **Re-acceptance:** accepted by Idaika Iglesias, 2026-10-01 ("ok al ajuste").
 
 Related plan: [plan.md](plan.md). States and completion rules: [specs index](../README.md).
 
