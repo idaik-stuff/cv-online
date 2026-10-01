@@ -4,7 +4,7 @@ A personal CV editor with a draft/publish workflow and public CV pages. Edit a C
 duplicate it to tailor it for a job offer, and publish it to a clean, shareable,
 printable URL. Drafts never reach the public page until they are explicitly published.
 
-Status: **first product change (CHG-002) implemented locally; not yet deployed.** See the [brief](docs/product/brief.md),
+Status: **first product change (CHG-002) live** at https://cv-online.idaika.workers.dev (fictional sample CVs for now). See the [brief](docs/product/brief.md),
 [MVP scope](docs/product/mvp.md), and [requirements](docs/product/prd.md).
 
 ## How this repository is built

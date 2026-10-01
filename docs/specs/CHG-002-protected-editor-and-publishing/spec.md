@@ -1,6 +1,6 @@
 # Spec: CHG-002 | Protected online editor with draft/publish and public CV pages
 
-Status: `approved` | Level: `L3` | Level rationale: introduces a security boundary (editor sign-in protecting drafts) and a public contract (CV URLs that will be shared with third parties).
+Status: `implemented` | Level: `L3` | Level rationale: introduces a security boundary (editor sign-in protecting drafts) and a public contract (CV URLs that will be shared with third parties).
 Owner: Idaika Iglesias | Scope accepted by / date: Idaika Iglesias, 2026-10-01.
 
 ## Problem and goal
@@ -95,7 +95,7 @@ Does not include:
 
 ## Acceptance and next steps
 
-Scope acceptance: accepted by Idaika Iglesias on 2026-10-01, including the resolutions of all uncertainties above. Next: `/sdd-plan`.
+Scope acceptance: accepted by Idaika Iglesias on 2026-10-01, including the resolutions of all uncertainties above. Implemented, verified, independently reviewed, and deployed on 2026-10-01; evidence in the plan.
 
 Related plan: [plan.md](plan.md). States and completion rules: [specs index](../README.md).
 

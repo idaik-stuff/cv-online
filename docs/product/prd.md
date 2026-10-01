@@ -8,12 +8,12 @@ Sources: [brief](brief.md) and [MVP](mvp.md). This PRD retains capabilities and 
 
 | ID | Capability and expected outcome | Delivery status | Change / evidence reference |
 | --- | --- | --- | --- |
-| CAP-01 | **Private editor access**: only the owner can reach the editor and drafts. | planned | TBD |
-| CAP-02 | **CV list**: see every CV with name, slug/URL, status, and last edit. | planned | TBD |
-| CAP-03 | **Draft editing**: edit with the existing rich-text tools and save the draft, available from any device. | planned | TBD |
-| CAP-04 | **Publishing**: publish (draft → public snapshot), unpublish, and discard draft changes. | planned | TBD |
+| CAP-01 | **Private editor access**: only the owner can reach the editor and drafts. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
+| CAP-02 | **CV list**: see every CV with name, slug/URL, status, and last edit. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
+| CAP-03 | **Draft editing**: edit with the existing rich-text tools and save the draft, available from any device. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
+| CAP-04 | **Publishing**: publish (draft → public snapshot), unpublish, and discard draft changes. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
 | CAP-05 | **CV lifecycle**: create, duplicate, rename, and delete CVs. | planned | TBD |
-| CAP-06 | **Public CV page**: clean, responsive, printable page at `/{slug}`, plus a "not found" page. | planned | TBD |
+| CAP-06 | **Public CV page**: clean, responsive, printable page at `/{slug}`, plus a "not found" page. | implemented | [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) |
 | CAP-07 | **Discoverability control**: title, description, and link-preview metadata; per-CV "hide from search engines". | planned | TBD |
 | CAP-08 | **Initial import**: bring in the two existing CVs from the current editor. | planned | TBD |
 

@@ -4,7 +4,7 @@ Status: `active` | Owner: Idaika Iglesias | Validated by / date: `TBD`.
 
 ## Actual state
 
-Implemented in this repository by [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md), verified locally, **not yet deployed**. One Cloudflare Worker serves both the public CV pages and a protected editor, and stores CVs in a dedicated R2 bucket.
+Implemented by [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md) and **deployed** on 2026-10-01 at `https://cv-online.idaika.workers.dev`. One Cloudflare Worker serves both the public CV pages and a protected editor, and stores CVs in a dedicated R2 bucket.
 
 The predecessor single-file editor remains outside version control in the ignored `private/` folder, because it embeds real personal data (PRD CON-02). Its CVs are not imported yet (CAP-08).
 
@@ -71,13 +71,14 @@ Workers observability logs are enabled. They record one structured line per auth
 
 ## Deployment and recovery
 
+- Production: Worker `cv-online` on `workers.dev`; Preview URLs are currently enabled by the platform default.
 - Deployment is manual with Wrangler, after the one-time setup in the [README](../../README.md#deployment).
 - Code rollback: `wrangler rollback`.
 - Data: for now only the fictional samples, which can be re-seeded. Backup of real CVs is to be planned with CAP-08.
 
 ## Relevant decisions
 
-Implemented locally by CHG-002 (not yet deployed): [ADR-0001](../adr/0001-hosting-on-cloudflare-workers.md) (Cloudflare Workers), [ADR-0002](../adr/0002-cv-storage-in-dedicated-r2-bucket.md) (dedicated R2 bucket), [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md) (Basic Auth). Delivery plan: [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md).
+Implemented and deployed by CHG-002: [ADR-0001](../adr/0001-hosting-on-cloudflare-workers.md) (Cloudflare Workers), [ADR-0002](../adr/0002-cv-storage-in-dedicated-r2-bucket.md) (dedicated R2 bucket), [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md) (Basic Auth). Delivery plan: [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md).
 
 ## Systemic limitations and debt
 

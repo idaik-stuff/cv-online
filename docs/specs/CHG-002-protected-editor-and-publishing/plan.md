@@ -1,6 +1,6 @@
 # Plan: CHG-002 | Protected online editor with draft/publish and public CV pages
 
-Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `completed` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -157,17 +157,17 @@ Verified version or diff: working tree on top of `e4b4491` (uncommitted at the t
 | --- | --- | --- |
 | AC-01 | Passed | `test/auth.test.ts`: 401 + `WWW-Authenticate` on `/admin`, `/admin/`, assets, unknown `/admin` paths, the list API, and every draft read/write; no draft text in the bodies. Browser: `/admin/` shows "Authentication required." |
 | AC-02 | Passed | `test/auth.test.ts`: wrong user or password, empty password, wrong scheme, malformed base64, no separator → 401. |
-| AC-03 | Passed | `test/auth.test.ts`: list page 200 with `no-store` and `noindex`; `/admin` → 302 `/admin/`. Browser: list rendered after authentication. |
+| AC-03 | Passed (local + production) | `test/auth.test.ts`: list page 200 with `no-store` and `noindex`; `/admin` → 302 `/admin/`. Browser: list rendered after authentication. |
 | AC-04 | Passed | `test/publishing.test.ts`: name, URL, derived status (all three), last edit. Browser: list shows both sample CVs. |
-| AC-05 | Passed (local browser), print pending | Walkthrough on `wrangler dev`: bold, italic, underline, bullets, size 14, preset and custom colors, clear formatting, undo/redo, and plain-text paste all changed the CV as expected. Print/PDF: the injected editor style is now screen-only and the caret is blurred before printing (review F-01; checked in the browser: `@media screen` rule). **A real print preview from the editor is pending (owner).** |
-| AC-06 | Passed (API) | `test/publishing.test.ts`: a saved draft is returned on a fresh read. A two-device check is pending in production. |
+| AC-05 | Passed (local + production print by owner) | Walkthrough on `wrangler dev`: bold, italic, underline, bullets, size 14, preset and custom colors, clear formatting, undo/redo, and plain-text paste all changed the CV as expected. Print/PDF: the injected editor style is now screen-only and the caret is blurred before printing (review F-01; checked in the browser: `@media screen` rule). Owner printed from the editor in production: clean A4. |
+| AC-06 | Passed (API + two devices in production by owner) | `test/publishing.test.ts`: a saved draft is returned on a fresh read. Two-device check done by the owner in production. |
 | AC-07 | Passed | Test + browser: after an edit and save, the public page is unchanged and the status is `Unpublished changes`. |
-| AC-08 | Passed | Test: public body byte-identical to the draft (including non-ASCII). Browser: the published page contains the edit, has no editor markup, and has the CSP. |
+| AC-08 | Passed (local + production) | Test: public body byte-identical to the draft (including non-ASCII). Browser: the published page contains the edit, has no editor markup, and has the CSP. |
 | AC-09 | Passed | Test + browser: discard restores the published version; status `Published`. 409 when never published. |
 | AC-10 | Passed | Test + browser: unpublish → 404; the CV is kept with status `Draft`. |
 | AC-11 | Passed | `test/public.test.ts`: `/`, unknown, uppercase, `_`, nested, encoded `..`, and `/favicon.ico` → 404 page. |
 | AC-12 | Passed | Test: 200 without a challenge, `default-src 'none'` with no `script-src`, `no-cache`. Cleanliness: the server refuses drafts that contain scripts or the editor's known markers inside tags (422; tests cover each marker, an unusual separator, and CV text that merely mentions the words). This is a backstop; the CSPs remain the controls against script execution (review F-03, N-02). The CSP blocked `fetch` from a public page during the walkthrough. |
-| AC-13 | Passed (mobile); print by CSS only | 375 px: `scrollWidth` 375, no horizontal scroll (after deviation 5). A4 print rules unchanged; a real print preview by the owner is pending. |
+| AC-13 | Passed | 375 px: `scrollWidth` 375, no horizontal scroll (after deviation 5). A4 print verified by the owner in production. |
 | AC-14 | Passed | All strings in `assets/admin/*` and the 404 page reviewed: English only. |
 | AC-15 | Passed | Tracked-file review: no secrets, real CV text, or the owner's contact data; `private/` and `.dev.vars` ignored. Seed test asserts fictional, clean samples. |
 | CSRF | Passed | `test/auth.test.ts`: all four write routes × cross-site `Sec-Fetch-Site`, foreign `Origin`, no origin data → 403; meta, draft, and public page unchanged (review F-05). |
@@ -187,13 +187,28 @@ Independent review (L3), 2026-10-01:
   - **F-06:** discard copied the hash instead of hashing the restored content. Fixed, with a partial-publish repair test.
   - **F-07** (question): could Workers Logs record the `Authorization` header? Open; to be checked in the first production log inspection.
   - **F-08:** drag-and-drop could insert rich HTML. `drop` is now converted to plain text, like paste. Custom elements added by browser extensions are not filtered; the server guard covers scripts and editor markup only (accepted).
-- **Re-review of the corrections** (same reviewer context, 2026-10-01): no blocking findings within the re-reviewed scope. F-01 to F-06 and F-08 resolved; F-07 open and tracked. Three new non-blocking findings, all fixed:
+- **Re-review of the corrections** (same reviewer context, 2026-10-01): no blocking findings within the re-reviewed scope. F-01 to F-06 and F-08 resolved; F-07 tracked (later closed in production). Three new non-blocking findings, all fixed:
   - **N-01:** a drop intercepted moves inside the CV and duplicated text. Moves inside the CV now stay native, and external drops insert plain text at the drop point.
   - **N-02:** the guard regex had false positives on CV text and the plan overclaimed. The attribute checks are now anchored inside tags; two tests were added and the wording softened.
   - **N-03:** "Download PDF" overwrote the CV's own `<title>`, which could later be saved and published. Both titles are now restored after printing.
 
   The reviewer asked only for a spot check of these. No new review is needed unless CSP, auth, CSRF, or the guard changes materially.
 
-Outstanding items / exceptions: production smoke test (AC-01, AC-03, AC-06 on two devices, AC-08, AC-11, AC-12); owner print preview from the editor (AC-05) and of the public page (AC-13); F-07 log inspection after the first deployment.
+Outstanding items / exceptions: none blocking. Follow-up candidates: disable Preview URLs (`preview_urls = false`); rate limiting stays an accepted residual risk (ADR-0003).
 
-Delivery: not deployed. Deployment requires explicit owner authorization at that moment.
+Delivery: **deployed to production on 2026-10-01** with the owner's explicit authorization. Details:
+- **URL:** `https://cv-online.idaika.workers.dev`, version `c1536e33-8f00-4d72-bc44-4f8a2b701753`, from commit `5252b7a`.
+- **Owner setup:** she ran `wrangler login`, created the bucket, and set the secrets herself.
+- **Config cleanup:** `wrangler r2 bucket create` added a duplicate `cv_online` binding to `wrangler.jsonc`. The file was restored to the committed version before deploying; the dry run showed only `CV_BUCKET` and `ASSETS`.
+- **Seed:** the fictional samples were loaded as drafts with `npm run seed:remote`.
+- **Production smoke test without credentials** (agent, curl): passed.
+  - `/`, an unknown slug, and an unpublished sample → 404 with the public CSP;
+  - `/admin/`, `/admin/api/cvs`, and `/admin/editor.js` → 401 Basic challenge, with no data in the body;
+  - a cross-site POST without credentials → 401;
+  - no 503, which confirms the secrets are set.
+- **Owner checks in production, with credentials** (Idaika Iglesias, 2026-10-01): all passed.
+  - Signed in and published a sample, which then opened in a private window without credentials (AC-03, AC-08).
+  - The same draft appeared on a second device (AC-06).
+  - Download PDF from the editor and printing the public page gave clean A4 output (AC-05, AC-13).
+  - In Workers Logs, a signed-in `/admin/` request showed no `Authorization` header (F-07).
+- Wrangler also enabled Preview URLs by default, because `preview_urls` is not set. They run the same code behind the same auth gate. Disabling them is a candidate for a follow-up change.
