@@ -4,50 +4,84 @@ Status: `active` | Owner: Idaika Iglesias | Validated by / date: `TBD`.
 
 ## Actual state
 
-No system has been implemented in this repository yet. The product is defined in the [brief](../product/brief.md), the [MVP](../product/mvp.md), and the [PRD](../product/prd.md). The proposed architecture belongs in the plan of the first product change and, where justified, in ADRs.
+Implemented in this repository by [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md), verified locally, **not yet deployed**. One Cloudflare Worker serves both the public CV pages and a protected editor, and stores CVs in a dedicated R2 bucket.
 
-What exists today is a **predecessor tool kept outside version control**: a single-file HTML CV editor, stored locally under the ignored `private/` folder because it embeds real personal data (constraint CON-02 in the PRD). It is described below only as input for the first product change. It is not part of the system.
+The predecessor single-file editor remains outside version control in the ignored `private/` folder, because it embeds real personal data (PRD CON-02). Its CVs are not imported yet (CAP-08).
 
 ## Context and boundaries
 
-The predecessor runs entirely in one browser. There is no server, no shared storage, and no public URL.
+- **Readers** (anyone with a link) reach `/{slug}` without credentials.
+- **The owner** reaches `/admin/*` with HTTP Basic Auth.
+- External dependencies: Cloudflare Workers runtime, R2, and Google Fonts (loaded by the CV documents).
 
 ## Components and dependencies
 
 | Existing component | Responsibility | Interfaces / dependencies | Code or contract path |
 | --- | --- | --- | --- |
-| Predecessor CV editor (outside the repository) | Rich-text editing of two fixed CVs inside an iframe; save to the browser; export HTML and PDF. | Browser `localStorage`, `contenteditable`, browser print dialog. No external libraries. | `private/editor-cvs-idaika.html` (ignored, local only) |
+| Worker entry and routing | Splits public and editor traffic; error handling and logging | Workers `fetch` handler | `src/worker.ts` |
+| Auth gate | Basic Auth (constant-time) and same-origin check for writes | Secrets `ADMIN_USER`, `ADMIN_PASSWORD` | `src/auth.ts` |
+| CV store | Drafts, published snapshots, metadata, derived status, slug validation | R2 binding `CV_BUCKET` → bucket `cv-online` | `src/store.ts` |
+| Responses | Public page and 404 with CSP; private headers for the editor | — | `src/responses.ts` |
+| Editor UI | CV list and rich-text editor (vanilla JS); served only after authentication | Assets binding `ASSETS`, `/admin/api/*` | `assets/admin/` |
+| Sample content | Two fictional, clean CVs and a seeding script | Wrangler R2 commands | `seed/` |
 
 ## Main flows
 
-Predecessor only: open file → choose a CV tab → edit → save to `localStorage` → download HTML or print to PDF. Clearing browser data loses unsaved and saved edits; the embedded originals remain as a fallback.
+- **Read a CV:** `GET /{slug}` → validate slug → read `public/{slug}.html` → 200, or the 404 page.
+- **Edit:** the editor loads the draft into an iframe, injects editing behavior, and strips it on save → `PUT /admin/api/cvs/{id}/draft`.
+- **Publish:** copy the draft to `public/{slug}.html`, then update the metadata. If a failure leaves the metadata stale, publishing again repairs it.
+- **Unpublish** deletes the public object. **Discard** copies the public object back to the draft.
 
 ## Data and invariants
 
-Predecessor only: CV content is embedded in the file as the original version, with edits stored per CV in the browser's `localStorage`. There is no other copy. Domain terms are defined in the [PRD](../product/prd.md#vocabulary-and-minimum-domain-model).
+R2 layout:
+- `cvs/{id}/meta.json`: name, slug, timestamps, and the SHA-256 of the draft and of the published snapshot;
+- `cvs/{id}/draft.html`;
+- `public/{slug}.html`.
+
+Invariants:
+- status is derived from the hashes (PRD R3);
+- stored CVs are clean documents, with no scripts and no `contenteditable`;
+- slugs match `^[a-z0-9-]+$`, and `admin` is reserved;
+- `id` equals `slug` until CAP-05.
+
+There is no version history: publishing overwrites the previous snapshot.
 
 ## Security and privacy
 
-The repository must never contain real CV content, contact data, or secrets (PRD CON-02, NFR-02). The `private/` folder is ignored by Git for that reason. No authentication or trust boundary exists yet.
+- Every `/admin` path, including the editor's assets, requires credentials.
+- If the secrets are missing, the editor answers 503 and stays closed.
+- Writes require a same-origin request, which protects against CSRF.
+- Public pages carry a CSP that blocks scripts.
+- Editor responses use `no-store` and `noindex`.
+- Logs record events and ids only, never credentials or CV content.
+- The Worker is bound to its own bucket only, so it cannot reach the IoT_B backups.
+- Known limit: no rate limiting against brute force. This is accepted in [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md).
 
 ## Quality and testing strategy
 
-No product checks exist yet. Framework checks are registered in the [README](../../README.md#commands).
+- Integration tests run the Worker in the local Workers runtime with a simulated R2 (`test/`).
+- A typecheck covers the TypeScript code.
+- Both are registered as product checks in [the README](../../README.md#commands).
+- Editor UI behavior is verified manually; there are no browser automation tests.
 
 ## Observability and operations
 
-None yet.
+Workers observability logs are enabled. They record one structured line per authentication failure, CSRF rejection, save, publish, unpublish, discard, and server error.
 
 ## Deployment and recovery
 
-No deployment exists.
+- Deployment is manual with Wrangler, after the one-time setup in the [README](../../README.md#deployment).
+- Code rollback: `wrangler rollback`.
+- Data: for now only the fictional samples, which can be re-seeded. Backup of real CVs is to be planned with CAP-08.
 
 ## Relevant decisions
 
-Accepted, not yet implemented: [ADR-0001](../adr/0001-hosting-on-cloudflare-workers.md) (Cloudflare Workers), [ADR-0002](../adr/0002-cv-storage-in-dedicated-r2-bucket.md) (dedicated R2 bucket), [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md) (Basic Auth). Delivery plan: [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md).
+Implemented locally by CHG-002 (not yet deployed): [ADR-0001](../adr/0001-hosting-on-cloudflare-workers.md) (Cloudflare Workers), [ADR-0002](../adr/0002-cv-storage-in-dedicated-r2-bucket.md) (dedicated R2 bucket), [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md) (Basic Auth). Delivery plan: [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md).
 
 ## Systemic limitations and debt
 
 | Known limitation | Impact | Mitigation / owner | Tracking reference |
 | --- | --- | --- | --- |
-| The only CV data lives in one local file and one browser's storage. | Single point of loss; no multi-device editing. | Addressed by the MVP. Owner: Idaika Iglesias. | [MVP](../product/mvp.md) |
+| The real CVs still live only in the predecessor file. | Single point of loss until imported. | CAP-08 import. Owner: Idaika Iglesias. | [MVP](../product/mvp.md) |
+| No version history in storage. | A publish overwrites the previous public snapshot. | Accepted MVP exclusion. | [MVP](../product/mvp.md) |

@@ -8,3 +8,11 @@ __pycache__/
 
 # Local-only files with real personal data (never commit).
 private/
+
+# Node / Wrangler.
+node_modules/
+.wrangler/
+.dev.vars
+
+# Local preview configuration (machine-specific paths).
+.claude/launch.json

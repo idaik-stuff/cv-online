@@ -1,0 +1,37 @@
+{
+  "name": "cv-online",
+  "version": "1.0.0",
+  "description": "Personal CV editor with draft/publish workflow and public CV pages.",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "seed:local": "node seed/seed.mjs --local",
+    "seed:remote": "node seed/seed.mjs --remote",
+    "deploy": "wrangler deploy"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idaik-stuff/cv-online.git"
+  },
+  "author": "Idaika Iglesias",
+  "license": "MIT",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/idaik-stuff/cv-online/issues"
+  },
+  "homepage": "https://github.com/idaik-stuff/cv-online#readme",
+  "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.22.0",
+    "@cloudflare/workers-types": "^5.20261001.1",
+    "typescript": "^7.0.2",
+    "vitest": "^4.1.11",
+    "wrangler": "^4.145.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260815.1": true,
+    "workerd@1.20260930.2": true
+  },
+  "private": true
+}

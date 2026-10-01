@@ -4,7 +4,7 @@ A personal CV editor with a draft/publish workflow and public CV pages. Edit a C
 duplicate it to tailor it for a job offer, and publish it to a clean, shareable,
 printable URL. Drafts never reach the public page until they are explicitly published.
 
-Status: **product defined, not yet implemented.** See the [brief](docs/product/brief.md),
+Status: **first product change (CHG-002) implemented locally; not yet deployed.** See the [brief](docs/product/brief.md),
 [MVP scope](docs/product/mvp.md), and [requirements](docs/product/prd.md).
 
 ## How this repository is built
@@ -29,8 +29,22 @@ Run from the repository root. Framework automation requires Python 3.10 or later
 uses only the standard library; Git is required for change checks and product verification.
 
 This README is the human command registry. `.sdd/verification.json` is the machine
-source for automated check arguments and profile membership. The template registers
-no product checks: add your stack's commands to the table below and to that file.
+source for automated check arguments and profile membership.
+
+### Product commands
+
+Requires Node.js 22+ (developed with 24 LTS). Run `npm install` once.
+
+| Operation | Command | Scope / prerequisites |
+| --- | --- | --- |
+| Worker tests | `npm test` | Integration tests in the local Workers runtime with a simulated R2 bucket and test-only credentials. Registered as `worker-tests` (product, focused). |
+| Typecheck | `npm run typecheck` | TypeScript, no emit. Registered as `typecheck` (product, standard). |
+| Local server | `npm run dev` | `http://localhost:8787`. Needs `.dev.vars` (copy `.dev.vars.example`; ignored by Git). |
+| Seed sample CVs (local) | `npm run seed:local` | Writes the two fictional `sample-*` CVs as drafts to the local bucket; removes their public snapshots. |
+| Seed sample CVs (remote) | `npm run seed:remote` | Same, against the real bucket. Only touches `sample-*` keys. Requires Wrangler login. |
+| Deploy | `npm run deploy` | Production. Only with the owner's explicit authorization; see *Deployment*. |
+
+### Framework commands
 
 | Operation | Command | Scope / prerequisites |
 | --- | --- | --- |
@@ -49,6 +63,16 @@ until a real deterministic command is added.
 Reports are written locally to ignored `.sdd/results/`. Keep reviewed evidence
 summaries in the plan or change record; do not commit raw reports or logs by default.
 Approval, independent review, and deployment are separate decisions.
+
+### Deployment
+
+One-time setup, done by the owner. Secrets are never written to the repository or typed into chat:
+
+1. `npx wrangler login`: authorize Wrangler in the browser.
+2. `npx wrangler r2 bucket create cv-online`: the dedicated bucket ([ADR-0002](docs/adr/0002-cv-storage-in-dedicated-r2-bucket.md)).
+3. `npx wrangler secret put ADMIN_USER` and `npx wrangler secret put ADMIN_PASSWORD`: the editor credentials ([ADR-0003](docs/adr/0003-editor-authentication-with-basic-auth.md)). Use a long random password. Change it the same way.
+
+Each release: `npm run deploy`. Roll back code with `npx wrangler rollback`. Without the two secrets, the editor answers 503 and stays closed.
 
 ### Framework maintenance commands
 
@@ -133,7 +157,7 @@ invoked through that trusted checkout's runner.
 
 ## What is intentionally left out
 
-No application stack, product check, deployment, user secret, or external connector
-is included. Remote CI/ruleset enforcement is not activated by the template. There is
+No user secret, real CV data, or external connector is included in the repository.
+Remote CI/ruleset enforcement is not activated yet; deployment is manual. There is
 no automatic all-phases command, mandatory third feature artifact, or extra approval
 system.

@@ -1,6 +1,6 @@
 # Plan: CHG-002 | Protected online editor with draft/publish and public CV pages
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -140,16 +140,60 @@ Found during planning; accepted by the owner on 2026-10-01 and reflected in the 
 2. **Photo replacement** (click the photo to choose a new one) existed inside the predecessor's CV documents but is not in the spec. Decision: **out of CHG-002.** The sample CVs use a placeholder image. Revisit with CAP-08, where the real photo matters.
 3. **Paste as plain text** (the predecessor's inner script) is kept as editor behavior. It protects the design and preserves CON-03. No scope change.
 
+Found during implementation (2026-10-01). None changes scope, contracts, or risk:
+
+4. **Compatibility date `2026-08-22`.** The Workers runtime bundled with the test pool supports dates up to 2026-08-22, so the Worker uses that date for both tests and deployment.
+5. **Small-screen layout for CVs.** The predecessor design is a fixed-width A4 sheet, which scrolled horizontally at 375 px and failed AC-13 / NFR-04 in the local walkthrough. Fix: `@media screen and (max-width:820px)` rules in the CV document stylesheet (single column, stacked header). Desktop and A4 print are unchanged (CON-03). **CAP-08 must add the same rules when importing the real CVs.** A seed test guards it.
+6. **Seed script removes public snapshots.** Re-seeding first left a public page for a CV whose status said `Draft`. `seed.mjs` now deletes `public/{slug}.html` for each sample.
+7. **Editor URL `/admin/edit?id=…`.** The assets layer canonicalizes `edit.html` to `edit` with a redirect; the list now links to the canonical URL.
+8. **List page bug fixed during the walkthrough.** A chained `append()` returned `undefined` and the list never rendered. Fixed in `assets/admin/list.js`.
+9. **Review corrections (F-01 to F-08).** Recorded under *Completion evidence*. The server-side clean-document guard (422) and the editor CSP are additions within the accepted security approach (ADR-0003, plan risk table). They change no scope or contract.
+
 ## Completion evidence
 
-Verified version or diff: pending. Relevant environment: pending.
+Verified version or diff: working tree on top of `e4b4491` (uncommitted at the time of verification). Environment: Windows 11, Node.js 24.21.0, Wrangler 4.145.0, Vitest 4.1.11 with `@cloudflare/vitest-pool-workers` 0.22.0, Python 3.14.7. Local only: the R2 bucket and secrets were simulated.
 
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-15 | Not run | Pending. |
+| AC-01 | Passed | `test/auth.test.ts`: 401 + `WWW-Authenticate` on `/admin`, `/admin/`, assets, unknown `/admin` paths, the list API, and every draft read/write; no draft text in the bodies. Browser: `/admin/` shows "Authentication required." |
+| AC-02 | Passed | `test/auth.test.ts`: wrong user or password, empty password, wrong scheme, malformed base64, no separator → 401. |
+| AC-03 | Passed | `test/auth.test.ts`: list page 200 with `no-store` and `noindex`; `/admin` → 302 `/admin/`. Browser: list rendered after authentication. |
+| AC-04 | Passed | `test/publishing.test.ts`: name, URL, derived status (all three), last edit. Browser: list shows both sample CVs. |
+| AC-05 | Passed (local browser), print pending | Walkthrough on `wrangler dev`: bold, italic, underline, bullets, size 14, preset and custom colors, clear formatting, undo/redo, and plain-text paste all changed the CV as expected. Print/PDF: the injected editor style is now screen-only and the caret is blurred before printing (review F-01; checked in the browser: `@media screen` rule). **A real print preview from the editor is pending (owner).** |
+| AC-06 | Passed (API) | `test/publishing.test.ts`: a saved draft is returned on a fresh read. A two-device check is pending in production. |
+| AC-07 | Passed | Test + browser: after an edit and save, the public page is unchanged and the status is `Unpublished changes`. |
+| AC-08 | Passed | Test: public body byte-identical to the draft (including non-ASCII). Browser: the published page contains the edit, has no editor markup, and has the CSP. |
+| AC-09 | Passed | Test + browser: discard restores the published version; status `Published`. 409 when never published. |
+| AC-10 | Passed | Test + browser: unpublish → 404; the CV is kept with status `Draft`. |
+| AC-11 | Passed | `test/public.test.ts`: `/`, unknown, uppercase, `_`, nested, encoded `..`, and `/favicon.ico` → 404 page. |
+| AC-12 | Passed | Test: 200 without a challenge, `default-src 'none'` with no `script-src`, `no-cache`. Cleanliness: the server refuses drafts that contain scripts or the editor's known markers inside tags (422; tests cover each marker, an unusual separator, and CV text that merely mentions the words). This is a backstop; the CSPs remain the controls against script execution (review F-03, N-02). The CSP blocked `fetch` from a public page during the walkthrough. |
+| AC-13 | Passed (mobile); print by CSS only | 375 px: `scrollWidth` 375, no horizontal scroll (after deviation 5). A4 print rules unchanged; a real print preview by the owner is pending. |
+| AC-14 | Passed | All strings in `assets/admin/*` and the 404 page reviewed: English only. |
+| AC-15 | Passed | Tracked-file review: no secrets, real CV text, or the owner's contact data; `private/` and `.dev.vars` ignored. Seed test asserts fictional, clean samples. |
+| CSRF | Passed | `test/auth.test.ts`: all four write routes × cross-site `Sec-Fetch-Site`, foreign `Origin`, no origin data → 403; meta, draft, and public page unchanged (review F-05). |
+| Isolation | Passed (config + review) | `wrangler.jsonc` has exactly one R2 binding (`cv-online`); confirmed by the independent review. |
+| Fail closed | Passed | `test/auth.test.ts`: missing or empty secrets → 503 on `/admin/` and the API, no editor content (review F-04). |
+| Editor CSP | Passed | Test: `script-src 'self'` on editor responses. Browser: a script inserted into the CV preview did not run (review F-02). |
+| Broad verification | Passed | `python scripts/verify broad --base e4b4491 --level L3 --change CHG-002-protected-editor-and-publishing` (framework checks + `worker-tests` 62/62 + `typecheck`), rerun after the review corrections. Local report in `.sdd/results/` (not committed). |
 
-Independent review: required (L3). Not started.
+Independent review (L3), 2026-10-01:
+- **Reviewer:** the `sdd-independent-review` Claude subagent in a fresh context, with read-only tools (Read, Grep, Glob) and no shell. It received the spec, plan, ADRs, the complete patch (28 files, `package-lock.json` excluded), and the verification evidence. It is the same model family as the implementer, so it is not equivalent to a human review and grants no approval.
+- **Result:** 1 blocking and 7 non-blocking findings. Resolutions:
+  - **F-01 (blocking):** editor print used the injected style, with `padding-top` and focus highlight. Fixed: injected CSS is `@media screen` only and the caret is blurred before `print()`. The real print preview stays pending (owner).
+  - **F-02:** the CV preview iframe could run scripts from a draft. Fixed: CSP `script-src 'self'` on editor responses, inherited by the srcdoc preview, plus a server guard that refuses drafts with scripts or editor markup (422).
+  - **F-03:** the AC-12 cleanliness claim was not tested. Fixed by the server guard and its tests; evidence wording corrected.
+  - **F-04:** no fail-closed test. Added.
+  - **F-05:** CSRF covered only publish. Now all four write routes.
+  - **F-06:** discard copied the hash instead of hashing the restored content. Fixed, with a partial-publish repair test.
+  - **F-07** (question): could Workers Logs record the `Authorization` header? Open; to be checked in the first production log inspection.
+  - **F-08:** drag-and-drop could insert rich HTML. `drop` is now converted to plain text, like paste. Custom elements added by browser extensions are not filtered; the server guard covers scripts and editor markup only (accepted).
+- **Re-review of the corrections** (same reviewer context, 2026-10-01): no blocking findings within the re-reviewed scope. F-01 to F-06 and F-08 resolved; F-07 open and tracked. Three new non-blocking findings, all fixed:
+  - **N-01:** a drop intercepted moves inside the CV and duplicated text. Moves inside the CV now stay native, and external drops insert plain text at the drop point.
+  - **N-02:** the guard regex had false positives on CV text and the plan overclaimed. The attribute checks are now anchored inside tags; two tests were added and the wording softened.
+  - **N-03:** "Download PDF" overwrote the CV's own `<title>`, which could later be saved and published. Both titles are now restored after printing.
 
-Outstanding items / exceptions: not evaluated. A blocked check does not count as passed.
+  The reviewer asked only for a spot check of these. No new review is needed unless CSP, auth, CSRF, or the guard changes materially.
+
+Outstanding items / exceptions: production smoke test (AC-01, AC-03, AC-06 on two devices, AC-08, AC-11, AC-12); owner print preview from the editor (AC-05) and of the public page (AC-13); F-07 log inspection after the first deployment.
 
 Delivery: not deployed. Deployment requires explicit owner authorization at that moment.

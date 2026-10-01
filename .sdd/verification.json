@@ -51,6 +51,27 @@
         "-v"
       ],
       "timeout_seconds": 120
+    },
+    {
+      "id": "typecheck",
+      "kind": "product",
+      "argv": [
+        "node",
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "timeout_seconds": 120
+    },
+    {
+      "id": "worker-tests",
+      "kind": "product",
+      "argv": [
+        "node",
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--silent"
+      ],
+      "timeout_seconds": 300
     }
   ],
   "profiles": {
@@ -66,8 +87,12 @@
       "broad": []
     },
     "product": {
-      "focused": [],
-      "standard": [],
+      "focused": [
+        "worker-tests"
+      ],
+      "standard": [
+        "typecheck"
+      ],
       "broad": []
     }
   }

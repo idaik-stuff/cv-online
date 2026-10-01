@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Edit CV – CV editor</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<header>
+  <a class="back" href="/admin/">← All CVs</a>
+  <span class="cvname" id="cvName">Loading…</span>
+  <span class="badge" id="badge"></span>
+  <span class="spacer"></span>
+  <span id="status" role="status"></span>
+  <button class="act save" id="save" title="Save draft (Ctrl+S)" disabled>Save draft</button>
+  <button class="act publish" id="publish" title="Make this draft the public version" disabled>Publish</button>
+  <button class="act" id="discard" title="Drop draft changes and return to the published version" disabled>Discard changes</button>
+  <button class="act" id="unpublish" title="Remove the public page (the CV is kept)" disabled>Unpublish</button>
+  <button class="act" id="pdf" title="Print or save as PDF" disabled>Download PDF</button>
+</header>
+
+<div class="fmt" id="fmt">
+  <button data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+  <button data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+  <button data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+  <span class="sep"></span>
+  <button data-cmd="insertUnorderedList" title="Add or remove bullets">• Bullets</button>
+  <span class="sep"></span>
+  <label for="size">Size</label>
+  <select id="size" title="Font size of the selected text">
+    <option value="">—</option>
+    <option>9</option><option>10</option><option>11</option><option>12</option><option>13</option><option>14</option><option>16</option><option>18</option><option>22</option>
+  </select>
+  <span class="sep"></span>
+  <label>Color</label>
+  <button class="sw" data-color="#27304a" style="background:#27304a" title="Body text"></button>
+  <button class="sw" data-color="#16295a" style="background:#16295a" title="Navy"></button>
+  <button class="sw" data-color="#2c56a6" style="background:#2c56a6" title="Blue"></button>
+  <button class="sw" data-color="#c8743a" style="background:#c8743a" title="Orange"></button>
+  <button class="sw" data-color="#5a6275" style="background:#5a6275" title="Grey"></button>
+  <input type="color" id="colorPick" value="#16295a" title="Other color" style="width:30px;height:28px;border:0;background:none;cursor:pointer">
+  <span class="sep"></span>
+  <button data-cmd="removeFormat" title="Remove formatting from the selected text">Clear formatting</button>
+  <span class="sep"></span>
+  <button data-cmd="undo" title="Undo (Ctrl+Z)">↶</button>
+  <button data-cmd="redo" title="Redo (Ctrl+Y)">↷</button>
+  <span class="hint">Select text in the CV and use the buttons</span>
+</div>
+
+<main class="editor">
+  <div id="previewWrap"><iframe id="preview" title="Editable CV"></iframe></div>
+</main>
+
+<script src="/admin/editor.js"></script>
+</body>
+</html>
