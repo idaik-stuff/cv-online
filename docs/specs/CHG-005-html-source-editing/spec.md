@@ -69,6 +69,6 @@ Does not include:
 
 Scope acceptance: accepted by Idaika Iglesias on 2026-10-01. Next: `/sdd-plan`.
 
-Related plan: pending (created in the plan phase). States and completion rules: [specs index](../README.md).
+Related plan: [plan.md](plan.md). States and completion rules: [specs index](../README.md).
 
 Upon completion, record evidence and delivery status in the plan. If another change replaces this behavior, reference that change without rewriting history.
