@@ -9,6 +9,8 @@
 - Preserve other people's work. Do not publish secrets or use sensitive data in fixtures or logs.
 - Obtain specific authorization before destructive actions, production access, or deployments.
 - Record durable decisions in Git and update only the affected documentation.
+- Never commit or push directly to the default branch; it changes only by merging pull requests. Work on one branch per change, named after its change ID in lowercase (for example `chg-005-html-source-editing`), and open its pull request with the template metadata. Authorization to "commit and push" means the change branch.
+- Merge only when `sdd-gate` passes and the owner approves. If the gate cannot pass for a reason outside the change, merge only under an authorized exception recorded in the plan as the [methodology](docs/development/methodology.md#9-exceptions-and-urgent-work) requires: authorization, rationale, risk, compensating measure, owner, and date. A direct commit to the default branch is allowed only to establish CI trust on the base ([ci-enforcement](docs/development/ci-enforcement.md#3-establish-the-initial-trusted-version) step 3), with the same exception record.
 - Do not claim a check passed without running it; report failures, omissions, and limitations.
 - Write all repository artifacts (documentation, specs, ADRs, code, comments, commit messages) in English, regardless of the conversation language.
 
@@ -55,5 +57,6 @@ CI activation and trust boundaries: [enforcement](docs/development/ci-enforcemen
 
 ## Completion
 Summarize the change and its level, verification evidence, affected documents, and outstanding items.
+When authorized to commit and push, push the change branch, open or update its pull request with the template metadata, and report the `sdd-gate` result (or that it did not run).
 For L2/L3, retain the evidence summary in `plan.md`; for L0/L1, in the change record.
 Do not mark blocked work as verified or claim human approval on someone else's behalf.

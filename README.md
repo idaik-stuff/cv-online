@@ -31,6 +31,15 @@ uses only the standard library; Git is required for change checks and product ve
 This README is the human command registry. `.sdd/verification.json` is the machine
 source for automated check arguments and profile membership.
 
+### Change workflow
+
+Every change goes through its own branch and a pull request. `main` changes only through merged pull requests, except as [AGENTS.md](AGENTS.md) allows.
+
+| Operation | Command | Scope / prerequisites |
+| --- | --- | --- |
+| Start a change | `git switch -c <change-id>` from an up-to-date `main` | For example `chg-005-html-source-editing`. |
+| Open the pull request | `gh pr create --fill` then complete the template metadata (`Change-Level`, `Change-ID`) | Triggers `sdd-gate`. Merge only when it passes and the owner approves. |
+
 ### Product commands
 
 Requires Node.js 22+ (developed with 24 LTS). Run `npm install` once.
@@ -123,6 +132,15 @@ Do not fill the PRD, MVP, or architecture with assumptions.
 ```
 
 ## CI activation
+
+**This repository** (status from [CHG-006](docs/specs/CHG-006-branch-and-pr-guard/plan.md)):
+
+| Element | Status |
+| --- | --- |
+| `CODEOWNERS` | Configured on `main` (bootstrap). Owner validation is not available on this plan (the GitHub API returns 404). |
+| `sdd-gate` | Configured to run on every pull request. Observed results are recorded in each change's plan. |
+| Product checks in CI | Not runnable yet: the CI does not install Node dependencies. Prepared by CHG-007. |
+| Rulesets / required checks | Not enforced. The repository is private on GitHub Free; respecting the gate depends on the change workflow. |
 
 The [workflow](.github/workflows/sdd.yml) reads classification and check registration
 from a separate checkout of the PR base, verifies the exact test merge, and produces
