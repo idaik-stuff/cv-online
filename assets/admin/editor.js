@@ -5,7 +5,8 @@
 const id = new URLSearchParams(location.search).get('id');
 const frame = document.getElementById('preview');
 const $ = (sel) => document.getElementById(sel);
-const btn = { save: $('save'), publish: $('publish'), discard: $('discard'), unpublish: $('unpublish'), pdf: $('pdf') };
+const btn = { save: $('save'), publish: $('publish'), discard: $('discard'), unpublish: $('unpublish'), pdf: $('pdf'), html: $('toggleHtml') };
+const code = $('code');
 
 const INJECT_ID = '__ed';
 // Screen only, so printing from the editor keeps the CV's own A4 print layout.
@@ -20,6 +21,11 @@ let cv = null; // summary from the API
 let dirty = false;
 let busy = false;
 let savedRange = null;
+// HTML panel (CHG-005): while open, the panel and the preview stay in sync,
+// and "Save draft" stores the panel text.
+let codeOpen = false;
+let panelTimer = null; // preview -> panel refresh
+let renderTimer = null; // panel -> preview re-render
 const fdoc = () => frame.contentDocument;
 
 /* ----- Status ----- */
@@ -41,6 +47,7 @@ function refreshButtons() {
   const loaded = cv !== null && !busy;
   btn.save.disabled = !loaded;
   btn.pdf.disabled = !loaded;
+  btn.html.disabled = !loaded;
   btn.publish.disabled = !loaded || (cv.status === 'Published' && !dirty);
   btn.discard.disabled = !loaded || cv.status === 'Draft' || (cv.status === 'Published' && !dirty);
   btn.unpublish.disabled = !loaded || cv.status === 'Draft';
@@ -85,9 +92,12 @@ async function guarded(label, fn) {
 }
 
 /* ----- Document load / serialize ----- */
-function render(html) {
+function render(html, keepScroll) {
+  let y = 0;
+  try { y = frame.contentWindow.scrollY; } catch {}
   frame.onload = () => {
     const d = fdoc();
+    if (keepScroll) frame.contentWindow.scrollTo(0, y);
     const style = d.createElement('style');
     style.id = INJECT_ID;
     style.textContent = INJECT_CSS;
@@ -103,7 +113,7 @@ function render(html) {
       box.setAttribute('data-ed', '');
     });
     try { d.execCommand('styleWithCSS', false, true); } catch {}
-    d.addEventListener('input', () => { if (!dirty) setDirty(true); });
+    d.addEventListener('input', () => { if (!dirty) setDirty(true); schedulePanelSync(); });
     d.addEventListener('selectionchange', () => {
       const s = d.getSelection();
       if (s.rangeCount && root.contains(s.anchorNode)) savedRange = s.getRangeAt(0).cloneRange();
@@ -136,6 +146,40 @@ function render(html) {
   frame.srcdoc = html;
 }
 
+/* ----- HTML panel ----- */
+function syncPanelNow() {
+  clearTimeout(panelTimer);
+  if (codeOpen) code.value = currentHtml();
+}
+function schedulePanelSync() {
+  if (!codeOpen) return;
+  clearTimeout(panelTimer);
+  panelTimer = setTimeout(syncPanelNow, 300);
+}
+function toggleHtml() {
+  codeOpen = !codeOpen;
+  $('codeWrap').hidden = !codeOpen;
+  btn.html.setAttribute('aria-pressed', String(codeOpen));
+  btn.html.textContent = codeOpen ? 'Hide HTML' : 'HTML';
+  if (codeOpen) {
+    code.value = currentHtml();
+    code.focus();
+  } else {
+    clearTimeout(panelTimer);
+  }
+}
+code.addEventListener('input', () => {
+  setDirty(true);
+  clearTimeout(panelTimer); // the panel is now the source; do not overwrite it
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => render(code.value, true), 600);
+});
+// What "Save draft" stores: the panel text while it is open, else the preview.
+function draftHtml() {
+  if (!codeOpen) return currentHtml();
+  return code.value;
+}
+
 function currentHtml() {
   const clone = fdoc().documentElement.cloneNode(true);
   clone.querySelector('#' + INJECT_ID)?.remove();
@@ -150,7 +194,9 @@ function currentHtml() {
 /* ----- Actions ----- */
 async function save() {
   return guarded('Saving', async () => {
-    setCv(await call('/draft', 'PUT', currentHtml()));
+    // Flush a pending preview edit into the panel before saving its text.
+    if (codeOpen && panelTimer) syncPanelNow();
+    setCv(await call('/draft', 'PUT', draftHtml()));
     setDirty(false);
     status('Draft saved ✓');
   });
@@ -168,6 +214,7 @@ async function discard() {
     setCv(await call('/discard', 'POST'));
     const full = await call('');
     render(full.html);
+    if (codeOpen) code.value = full.html;
     setDirty(false);
     status('Changes discarded');
   });
@@ -215,6 +262,7 @@ function run(cmd, val) {
   d.execCommand('styleWithCSS', false, cmd === 'foreColor');
   d.execCommand(cmd, false, val ?? null);
   setDirty(true);
+  schedulePanelSync();
 }
 document.querySelectorAll('#fmt button').forEach((b) => {
   b.addEventListener('mousedown', (e) => e.preventDefault());
@@ -240,6 +288,7 @@ $('size').addEventListener('change', (e) => {
   });
   e.target.value = '';
   setDirty(true);
+  schedulePanelSync();
 });
 
 /* ----- Wiring ----- */
@@ -248,6 +297,7 @@ btn.publish.onclick = publish;
 btn.discard.onclick = discard;
 btn.unpublish.onclick = unpublish;
 btn.pdf.onclick = printPdf;
+btn.html.onclick = toggleHtml;
 document.addEventListener('keydown', onKey);
 window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
 

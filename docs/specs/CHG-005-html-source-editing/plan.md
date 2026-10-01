@@ -1,6 +1,6 @@
 # Plan: CHG-005 | View and edit a CV's HTML in the editor
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `standard` (L2).
 
 ## System inspection
@@ -89,18 +89,27 @@ No automated browser tests exist in this project. UI behavior is verified manual
 
 ## Deviations and decisions during execution
 
-None recorded yet.
+1. **Panel-to-preview sync is debounced at 300 ms** (preview to panel) and 600 ms (panel to preview). Before saving, any pending preview edit is flushed into the panel, so the saved text always contains it.
+2. **Verification base** `b36c737` (main after PR #3). The walkthrough used the fictional `sample-director`, re-seeded locally; the owner's real CVs were not opened.
 
 ## Completion evidence
 
-Verified version or diff: pending. Relevant environment: pending.
+Verified version or diff: branch `chg-005-html-source-editing` (base `b36c737`). Environment: Windows 11, local `wrangler dev`, Node.js 24.21.0, npm 11.19.0.
 
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-07 | Not run | Pending. |
+| AC-01 | Passed | Panel open (`aria-pressed=true`); the text starts with `<!DOCTYPE html>` and has no `contenteditable`, `data-ed`, or `__ed`. |
+| AC-02 | Passed | Changing an `href` in the panel updated the preview link (`https://example.com` → `…/linkedin-fixed`) after the pause; status "Unsaved changes", button "Save draft •". |
+| AC-03 | Passed | Save → "Draft saved ✓"; the draft read back through the API contains the new `href` and the formatting from AC-06. |
+| AC-04 | Passed | Publish → `Published`; the public page has the new `href` and no editor markup. |
+| AC-05 | Passed | A `<script>` typed into the panel: the save was refused with the server's message ("Draft contains scripts or editor markup…"), the text was kept, and the draft was unchanged. The script did not run in the preview (editor CSP). |
+| AC-06 | Passed | Underline applied in the preview with the panel open appears in the panel; the panel stays clean and keeps the earlier edit. |
+| AC-07 | Passed | Panel closed: formatting and save work as before. `verify standard --base b36c737 --level L2 --change CHG-005-html-source-editing` passed (framework checks, product-install, worker-tests 101/101, typecheck). |
+| Layout | Passed | Desktop: the panel is beside the preview. 375 px: the panel is full width above the preview, with no horizontal scroll. Discard refreshes the panel from the server. |
+| CI | Pending | PR gate (first product-target PR; CHG-007 AC-04). |
 
-Independent review: not required for L2.
+Independent review: not required (L2).
 
-Outstanding items / exceptions: not evaluated.
+Outstanding items / exceptions: PR gate; manual deploy with the owner's authorization; owner fixes the LinkedIn link in production.
 
-Delivery: through PR (branch `chg-005-html-source-editing`), then a manual deploy with the owner's authorization.
+Delivery: not merged.
