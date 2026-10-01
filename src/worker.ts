@@ -1,12 +1,9 @@
 import { checkAuth, isSameOrigin } from "./auth";
+import { EDITOR_MARKUP } from "./contract";
 import { error, json, notFound, privateHeaders, publicPage, unauthorized } from "./responses";
 import { CvStore, NotPublishedError } from "./store";
 
 const MAX_DRAFT_BYTES = 2 * 1024 * 1024;
-
-// Clean document contract: a stored CV carries no scripts and no editor markup.
-// Attribute checks only match inside tags, so CV text may mention these words.
-const EDITOR_MARKUP = /<script\b|<[^>]*[\s/](contenteditable|data-ed)\b|<[^>]*\sid=["']?__ed\b/i;
 
 function isAdminPath(pathname: string): boolean {
   return pathname === "/admin" || pathname.startsWith("/admin/");

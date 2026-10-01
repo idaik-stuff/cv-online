@@ -42,6 +42,7 @@ Requires Node.js 22+ (developed with 24 LTS). Run `npm install` once.
 | Local server | `npm run dev` | `http://localhost:8787`. Needs `.dev.vars` (copy `.dev.vars.example`; ignored by Git). |
 | Seed sample CVs (local) | `npm run seed:local` | Writes the two fictional `sample-*` CVs as drafts to the local bucket; removes their public snapshots. |
 | Seed sample CVs (remote) | `npm run seed:remote` | Same, against the real bucket. Only touches `sample-*` keys. Requires Wrangler login. |
+| Import the predecessor CVs (one-off) | `node import/import-cvs.mjs --dry-run [--preview private/import-preview]`, then `--local` or `--remote` | Reads the CVs exported from the predecessor (`private/director.html`, `private/senior-pm.html`), cleans both (self-checked), uploads them as drafts, never overwrites, and removes the `sample-*` CVs. Prints only slugs, sizes, and hashes. `--remote` only with the owner's authorization ([CHG-003](docs/specs/CHG-003-import-existing-cvs/plan.md)). |
 | Deploy | `npm run deploy` | Production. Only with the owner's explicit authorization; see *Deployment*. |
 
 ### Framework commands

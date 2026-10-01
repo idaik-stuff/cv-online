@@ -14,3 +14,12 @@ declare module "*.html?raw" {
   const content: string;
   export default content;
 }
+
+declare module "*/import/clean.mjs" {
+  export const MOBILE_CSS: string;
+  export class CleanError extends Error {
+    check: string;
+  }
+  export function visibleText(html: string): string;
+  export function cleanPredecessorCv(html: string): string;
+}

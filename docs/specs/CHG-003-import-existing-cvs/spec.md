@@ -29,7 +29,7 @@ Facts from inspecting `private/editor-cvs-idaika.html` (local and ignored; struc
 
 Includes:
 
-- Importing both CVs from the version embedded in `private/editor-cvs-idaika.html`, which the owner confirmed is the latest (2026-10-01).
+- Importing both CVs from the owner's latest versions, exported with the predecessor's "Descargar HTML" to `private/director.html` and `private/senior-pm.html` (see Uncertainties: source revised 2026-10-01).
 - Converting each one into a clean document:
   - no toolbar, scripts, file inputs, or `contenteditable`;
   - English UI strings (photo `title`/`alt`) and `lang="en"`;
@@ -61,7 +61,7 @@ Does not include:
 
 | ID | Scenario / precondition | Action | Observable outcome |
 | --- | --- | --- | --- |
-| AC-01 | Source file in `private/`; production has no `director` or `senior-pm` | Run the import against production | The CV list shows "Innovation Director" (`director`) and "Senior IT Project/Program Manager" (`senior-pm`) with status `Draft`, and no `sample-*` CVs. `/director` and `/senior-pm` return 404. |
+| AC-01 | Exported source files in `private/`; production has no `director` or `senior-pm` | Run the import against production | The CV list shows "Innovation Director" (`director`) and "Senior IT Project/Program Manager" (`senior-pm`) with status `Draft`, and no `sample-*` CVs. `/director` and `/senior-pm` return 404. |
 | AC-02 | Imported drafts | Inspect the stored documents | No `<script`, `contenteditable`, toolbar, file input, or Spanish UI strings; `lang="en"`; small-screen rules present; A4 print rules unchanged. |
 | AC-03 | Imported draft and predecessor version side by side | Owner compares them on a desktop screen | Same text, formatting, layout, and photo (MVP exit criterion "same appearance"). |
 | AC-04 | Imported CV open in the editor | Owner edits and saves | Save is accepted (no 422) and the status rules of CHG-002 apply. |
@@ -82,7 +82,7 @@ Does not include:
 
 | Question / assumption | Owner | Blocks | Resolution or evidence |
 | --- | --- | --- | --- |
-| Source version: the file or newer browser edits? | Idaika Iglesias | AC-01, AC-03 | Resolved 2026-10-01: the version embedded in the file is the latest. |
+| Source version: the file or newer browser edits? | Idaika Iglesias | AC-01, AC-03 | First resolved as "the file"; **revised the same day by the owner**: the latest versions were in the browser cache. She exported them to `private/director.html` and `private/senior-pm.html`, which are now the source. Their visible text differs from the embedded originals, confirming that they are newer. Accepted by the owner, 2026-10-01. |
 | Photo replacement | Idaika Iglesias | Scope | Resolved 2026-10-01: out of scope; the current photo is imported unchanged. |
 | Fictional samples in production | Idaika Iglesias | Scope | Resolved 2026-10-01: remove them from production as part of this change. |
 | CV names | Idaika Iglesias | AC-01 | Resolved 2026-10-01: "Innovation Director" and "Senior IT Project/Program Manager". |

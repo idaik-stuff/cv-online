@@ -1,6 +1,6 @@
 # Plan: CHG-003 | Import the owner's existing CVs
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `standard` (L2).
 
 ## System inspection
@@ -117,18 +117,32 @@ All paths are **proposed**.
 
 ## Deviations and decisions during execution
 
-None recorded yet.
+Minor, no scope or risk change (2026-10-01):
+
+1. **Node imports the shared guard directly.** `import/clean.mjs` imports `src/contract.ts`, using Node 24's built-in TypeScript type stripping. `src/env.d.ts` declares the module types for the tests.
+2. **CSS rule-removal bug, caught by the tests.** A capture-based regex skipped a rule directly after another removed one (`[contenteditable]:hover` then `:focus`). It now uses a lookbehind. The self-check, which had not caught this, now also rejects leftover `.toolbar`, `#saved`, `[contenteditable]`, and `cursor:pointer` CSS.
+3. **Windows process spawning.** The CLI runs `npx wrangler` through a shell on Windows, as `seed.mjs` does. Node prints DEP0190 for this; the arguments are fixed values from the script, not user input.
+4. **Preview path guard.** `--preview` refuses any folder outside `private/`, so real content cannot be written to a tracked path.
+5. **Source switched to the owner's exported files (spec revision accepted 2026-10-01).** The latest CVs were in the browser cache, not in the editor file. The owner exported them to `private/director.html` and `private/senior-pm.html`; the CLI now reads those, with the same cleaning. The embedded-file extractor and its 2 tests were removed as unused. The local drafts from the old source were deleted and re-imported.
 
 ## Completion evidence
 
-Verified version or diff: pending. Relevant environment: pending.
+Verified version or diff: working tree on top of `c87ee8e` (uncommitted at the time of verification). Environment: Windows 11, Node.js 24.21.0, Wrangler 4.145.0, local `wrangler dev` with a simulated R2.
 
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-08 | Not run | Pending. |
+| AC-01 | Passed (local) | `--local` run from the exported files: both CVs imported as drafts with the spec names; samples removed. Stored draft hashes match the cleaned output (`3b4da779438c…`, `58e2ce61d5b7…`). API (agent, no content returned): the list holds only `director` "Innovation Director" and `senior-pm` "Senior IT Project/Program Manager", both `Draft`; `/director` and `/senior-pm` → 404. **Production, 2026-10-01:** `--remote` imported both CVs. Metadata read back without content shows the spec names, draft hashes `3b4da779438c…`/`58e2ce61d5b7…`, and `publishedHash: null`. `sample-*` are gone; `/director`, `/senior-pm`, and `/sample-*` → 404. |
+| AC-02 | Passed | `test/import-clean.test.ts` (fictional predecessor-like fixture): no toolbar, scripts, file input, editing attributes or CSS, Spanish UI strings or comments; `lang="en"`; mobile block; A4 intact; guard does not match. Real source (exported files): all self-checks passed in `--dry-run`; stored drafts checked structurally through the API. |
+| AC-03 | Passed | Self-check "visible text unchanged" passed for both real CVs. The owner compared `private/import-preview/*.html` side by side with her latest versions and confirmed them (2026-10-01). |
+| AC-04 | Passed (local); production pending (owner) | Re-saving each imported draft through the API → 200 (accepted by the guard). The owner edited and saved in the local editor (2026-10-01). |
+| AC-05 | Pending | After the owner publishes in production. |
+| AC-06 | Passed (local) | Second `--local` run: both CVs "skipped (already exists; nothing changed)". |
+| AC-07 | Passed | Combined SHA-256 of the two exported source files, `2c9ad39c5678…`, is the same before and after every run (the earlier editor-file source, `e136e55c3802…`, was also unchanged). |
+| AC-08 | Pending final review | Fixture and tests are fictional; `private/` (source and preview) is ignored. Final tracked-file review before commit. |
+| Regression | Passed | `npm run typecheck`; `npm test` 72/72 (62 existing + 10 new). |
 
 Independent review: not required for L2.
 
-Outstanding items / exceptions: not evaluated. A blocked check does not count as passed.
+Outstanding items / exceptions: owner edits and publishes in production (AC-04 production, AC-05 phone and print); final AC-08 review before commit.
 
-Delivery: not run. The production import requires the owner's explicit authorization at that moment.
+Delivery: production import run on 2026-10-01 with the owner's explicit authorization ("OK, importa a producción"). Both CVs are drafts in production; nothing is published by the import.
