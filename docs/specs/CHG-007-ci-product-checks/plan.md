@@ -97,12 +97,7 @@ Verified version or diff: branch head `3ff2627` (registry final), plus documenta
 | AC-01 | Passed | Fresh local clone of `3ff2627`, without `node_modules`: `verify broad --base 8c59abe --level L3 --change CHG-007-ci-product-checks` → passed (product-install 6.6 s, worker-tests, typecheck, and all framework checks). Direct run printed `v24.21.0` / `11.19.0` and the approval probe passed. |
 | AC-02 | Passed | Working checkout, same command, after the hardening → passed. An earlier run was blocked by stale processes (deviation 2). |
 | AC-03 | Passed | [PR #2](https://github.com/idaik-stuff/cv-online/pull/2), head `1505045` ([Actions run 36914809658](https://github.com/idaik-stuff/cv-online/actions/runs/36914809658)): `sdd-policy`, `sdd-verify`, and `sdd-gate` pass on the framework target; merge state `CLEAN`. The owner re-acceptance commit triggers a new run, which must also pass before merge. |
-| AC-04 | **Failed (first observation), as designed; resolution in CHG-010** | [PR #4](https://github.com/idaik-stuff/cv-online/pull/4) (CHG-005), [run 36921655998](https://github.com/idaik-stuff/cv-online/actions/runs/36921655998), job log:
-- the runner reported **`v22.23.3` / `10.9.9`**;
-- `product-install`: "this npm does not support allowScripts; npm 11 with install-script approvals is required", then **failed**;
-- `worker-tests` and `typecheck` then failed with `MODULE_NOT_FOUND` (no dependencies).
-
-The guard failed closed, as intended: nothing was installed with ungated scripts. The follow-up foreseen in the risk table is [CHG-010](../CHG-010-ci-node-24/plan.md), which pins Node.js 24.21.0 (npm 11) in the `verify` job. Re-observation is CHG-010 AC-03. |
+| AC-04 | **Failed (first observation), as designed; resolution in CHG-010** | [PR #4](https://github.com/idaik-stuff/cv-online/pull/4) (CHG-005), [run 36921655998](https://github.com/idaik-stuff/cv-online/actions/runs/36921655998), job log: the runner reported `v22.23.3` / `10.9.9`; `product-install` refused ("this npm does not support allowScripts…") and failed; `worker-tests` and `typecheck` then failed with `MODULE_NOT_FOUND`. The guard failed closed, as intended. Follow-up: [CHG-010](../CHG-010-ci-node-24/plan.md) pins Node.js 24.21.0 (bundled npm 11.19.0, per nodejs.org `index.json`); re-observation is CHG-010 AC-03. |
 | AC-05 | Passed | Framework matcher: `scripts/hooks/pre-push` is a framework path with `ci-governance` L3. Control: `src/worker.ts` is not a framework path. |
 | Guard negatives | Passed | A planted npm is refused; an npm without approvals fails without installing. |
 
@@ -125,6 +120,6 @@ Independent review: round 1 by the `sdd-independent-review` subagent (fresh cont
   - R4: the owner re-accepted the tightened AC-04 and the npm uncertainty on 2026-10-01; recorded in the spec.
 
 Outstanding items / exceptions:
-- **AC-04:** observe on the first product PR. If it fails because of the runner's Node or npm, open an L3 follow-up to pin them; never skip the check.
+- **AC-04:** failed on PR #4 (run 36921655998). Closure depends on CHG-010 AC-03 (a new PR #4 run after CHG-010 merges). The spec stays not `implemented` until then.
 
-Delivery: to be merged by the owner after a passing gate. The plan stays `in-progress` until AC-04 is observed on the first product PR; the spec is then marked `implemented`.
+Delivery: merged (PR #2). The plan stays `in-progress` until AC-04 passes through CHG-010 AC-03; the spec is then marked `implemented`.

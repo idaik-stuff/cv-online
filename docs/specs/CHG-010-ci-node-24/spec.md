@@ -40,20 +40,20 @@ Does not include:
 | --- | --- | --- | --- |
 | AC-01 | This PR | Inspect `sdd.yml` | One new step in `verify`, before the checks: `actions/setup-node@<full SHA> # v7.0.0`, `node-version: 24.21.0`, `package-manager-cache: false`. No other job is changed. |
 | AC-02 | This PR | `sdd-gate` | Passes (framework target), and the `verify` job log shows the setup step completing with Node.js 24.21.0. |
-| AC-03 | After merge, the CHG-005 PR (#4) re-run | `sdd-gate` | The job log shows `v24.21.0` and npm 11.x; `product-install` passes the approval probe and installs; `worker-tests` and `typecheck` run; the gate result reflects CHG-005 itself. This closes CHG-007 AC-04. |
+| AC-03 | After merge, a **new** run on PR #4 (CHG-005): update its branch with the new `main` (synchronize event). Re-running the old run does not pick up the new workflow. | `sdd-gate` | The job log shows `v24.21.0` and npm 11.x; `product-install` passes the approval probe and installs; `worker-tests` and `typecheck` run; the gate result reflects CHG-005 itself. This closes CHG-007 AC-04. |
 | AC-04 | Framework checks | `verify broad` on this branch | Passed. |
 
 ## Constraints and compatibility
 
 - **Delivery policy (L3).** No secrets, no caches, no new permissions. The action is pinned by full SHA, consistent with the existing actions.
-- **Supply chain.** The Node.js binary comes from the official distribution through the pinned action.
+- **Supply chain.** The official `actions/setup-node`, pinned by SHA, resolves Node.js 24.21.0 from the runner tool cache, GitHub's `actions/node-versions` manifest, or nodejs.org. The runtime is **version-pinned, not content-hash-pinned**; that residual risk is accepted. The action receives the default read-only `github.token`.
 - **Trust model.** The registry is still read from the base. This change affects only the runtime available to the registered checks.
 
 ## Uncertainties
 
 | Question / assumption | Owner | Blocks | Resolution or evidence |
 | --- | --- | --- | --- |
-| Node.js 24.21.0 bundles npm 11 with install-script approvals, as it does locally (npm 11.19.0). | Idaika Iglesias | AC-03 | Confirmed by the job log in AC-03. |
+| Node.js 24.21.0 bundles npm 11 with install-script approvals, as it does locally (npm 11.19.0). | Idaika Iglesias | AC-03 | **Resolved:** nodejs.org `dist/index.json` lists v24.21.0 with npm 11.19.0. AC-03 confirms it in CI. |
 
 ## Acceptance and next steps
 

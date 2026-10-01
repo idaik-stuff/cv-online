@@ -141,7 +141,7 @@ Do not fill the PRD, MVP, or architecture with assumptions.
 | --- | --- |
 | `CODEOWNERS` | Configured on `main` (bootstrap). Owner validation is not available on this plan (the GitHub API returns 404). |
 | `sdd-gate` | Configured to run on every pull request. Observed results are recorded in each change's plan. |
-| Product checks in CI | Configured by [CHG-007](docs/specs/CHG-007-ci-product-checks/plan.md): the registered `product-install` check runs `npm ci` from the lockfile before the tests and requires npm install-script approvals. First CI observation (PR #4): the runner's Node 22 / npm 10.9.9 lacks install-script approvals, so the check failed closed. [CHG-010](docs/specs/CHG-010-ci-node-24/plan.md) pins Node.js 24.21.0 (npm 11) in the `verify` job. |
+| Product checks in CI | Configured by [CHG-007](docs/specs/CHG-007-ci-product-checks/plan.md): the registered `product-install` check runs `npm ci` from the lockfile before the tests and requires npm install-script approvals. First CI observation (PR #4): the runner's Node 22 / npm 10.9.9 lacks install-script approvals, so the check failed closed. [CHG-010](docs/specs/CHG-010-ci-node-24/plan.md) pins Node.js 24.21.0 (bundled npm 11.19.0) in the `verify` job. |
 | Rulesets / required checks | Not enforced. The repository is private on GitHub Free; respecting the gate depends on the change workflow. |
 
 The [workflow](.github/workflows/sdd.yml) reads classification and check registration
