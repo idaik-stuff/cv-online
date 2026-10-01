@@ -12,4 +12,10 @@ Acceptance does not imply that the system already implements the decision. The p
 
 Do not rewrite an accepted decision to erase its tradeoffs. You may explicitly correct a factual error or add a reference to a superseding ADR. A new choice requires a new record.
 
-This starter contains no accepted ADRs or predetermined technology decisions. Do not create an ADR merely to record that these templates exist.
+## Index
+
+| ADR | Decision | Status |
+| --- | --- | --- |
+| [0001](0001-hosting-on-cloudflare-workers.md) | Host the application on Cloudflare Workers | `accepted` |
+| [0002](0002-cv-storage-in-dedicated-r2-bucket.md) | Store CVs in a dedicated Cloudflare R2 bucket | `accepted` |
+| [0003](0003-editor-authentication-with-basic-auth.md) | Protect the editor with HTTP Basic Authentication | `accepted` |

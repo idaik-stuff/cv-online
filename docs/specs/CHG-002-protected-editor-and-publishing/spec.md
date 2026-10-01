@@ -62,7 +62,7 @@ Does not include:
 | AC-02 | Visitor with a wrong username or password | Attempts to sign in | Access is refused, as in AC-01. |
 | AC-03 | Owner with valid credentials | Signs in | She reaches the CV list. |
 | AC-04 | Owner signed in; sample CVs exist | Opens the CV list | Each CV shows its name, public URL, status (`Draft`, `Published`, or `Unpublished changes`), and last edit date. |
-| AC-05 | Owner editing a CV | Uses each formatting tool listed in *Context* except "view source" (see Uncertainties) | Each tool works on the CV text as in the predecessor. |
+| AC-05 | Owner editing a CV | Uses each tool: bold, italic, underline, bullet lists, font size, text colors (presets and custom), remove formatting, undo/redo, print/PDF; and pastes text | Each tool works on the CV text as in the predecessor; pasted text is inserted as plain text. |
 | AC-06 | Owner saved a draft on device A | Signs in on device or browser B and opens the CV | The saved draft is shown. |
 | AC-07 | CV is published; owner edits and saves the draft | A reader opens the public URL | The reader sees the previously published content; the list shows `Unpublished changes`. |
 | AC-08 | CV with a saved draft | Owner publishes, then a reader opens the public URL | The page shows the same content and layout as the draft at publish time; the list shows `Published`. |
@@ -89,6 +89,7 @@ Does not include:
 | Root page `/`: shows the "not found" page in this change, with the landing-page decision left for later. | Idaika Iglesias | AC-11 coverage of `/` | Accepted by owner, 2026-10-01 |
 | The predecessor's "view source" (HTML code view) and "reset to original" tools: drop both. Reset is replaced by *Discard changes*. View source is a power tool outside the MVP. | Idaika Iglesias | AC-05 tool list | Accepted by owner, 2026-10-01 |
 | The predecessor's "download HTML" button: drop it, because publishing replaces it. Printing to PDF stays. | Idaika Iglesias | AC-05 tool list | Accepted by owner, 2026-10-01 |
+| Planning findings: "find" and "jump to CV text" only work on the dropped source view, so both are dropped (browser find still works). Photo replacement (inside the predecessor CV documents) is out of this change and is revisited with CAP-08. Paste-as-plain-text is kept. | Idaika Iglesias | AC-05 tool list | Accepted by owner, 2026-10-01 (AC-05 updated) |
 | After *unpublish*, the CV shows status `Draft`. PRD R3 currently defines `Draft` as "never published" and should read "not currently published". | Idaika Iglesias | AC-10 status wording | Accepted by owner, 2026-10-01; PRD R3 wording updated |
 | First deployment to production is part of this change, executed only with explicit owner authorization at that moment. | Idaika Iglesias | MVP exit criteria on production | Accepted by owner, 2026-10-01 |
 
@@ -96,6 +97,6 @@ Does not include:
 
 Scope acceptance: accepted by Idaika Iglesias on 2026-10-01, including the resolutions of all uncertainties above. Next: `/sdd-plan`.
 
-Related plan: pending (created in the plan phase). States and completion rules: [specs index](../README.md).
+Related plan: [plan.md](plan.md). States and completion rules: [specs index](../README.md).
 
 Upon completion, record evidence and delivery status in the plan. If another change replaces this behavior, reference that change without rewriting history.

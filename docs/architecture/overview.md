@@ -44,7 +44,7 @@ No deployment exists.
 
 ## Relevant decisions
 
-No ADRs accepted yet. Technology preferences awaiting decision are listed in the [PRD](../product/prd.md#technology-preferences-not-yet-decided).
+Accepted, not yet implemented: [ADR-0001](../adr/0001-hosting-on-cloudflare-workers.md) (Cloudflare Workers), [ADR-0002](../adr/0002-cv-storage-in-dedicated-r2-bucket.md) (dedicated R2 bucket), [ADR-0003](../adr/0003-editor-authentication-with-basic-auth.md) (Basic Auth). Delivery plan: [CHG-002](../specs/CHG-002-protected-editor-and-publishing/plan.md).
 
 ## Systemic limitations and debt
 
