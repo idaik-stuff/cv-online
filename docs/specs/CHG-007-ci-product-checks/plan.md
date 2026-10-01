@@ -77,16 +77,23 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
 
 ## Deviations and decisions during execution
 
-None recorded yet.
+1. **AC-05 uses the framework's own matcher.** The check calls `matches()` from `scripts/sdd/changes.py`, which `ci.py` uses, instead of the CI unit path.
+2. **Windows file locks** (observation, no scope change). The first AC-02 run failed: `npm ci` got `EPERM` unlinking a native module (`rolldown-binding…node`) that orphaned processes still held. Those were an `npm test`/Vitest/esbuild set left by an earlier hung run in CHG-002. The processes were stopped and the run repeated: passed. CI runners start clean, so this does not apply there. Locally, close running test or dev processes before a product-target verification.
 
 ## Completion evidence
 
+Verified version or diff: branch `chg-007-ci-product-checks` at `63d15fa` plus documentation edits; base `8c59abe` (main after PR #1). Environment: Windows 11, Python 3.14.7, Node.js 24.21.0, npm 11.19.0.
+
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
-| AC-01 to AC-05 | Not run | Pending. |
+| AC-01 | Passed | Fresh local clone of the branch, without `node_modules`: `verify broad --base 8c59abe --level L3 --change CHG-007-ci-product-checks` → passed. Report: docs, adapters, adapter-tests, automation-tests, **product-install 8.5 s**, worker-tests, and typecheck all passed; `node_modules` was created by the run. |
+| AC-02 | Passed (second run) | Working checkout, same command → passed after the stale processes were stopped (deviation 2). |
+| AC-03 | Pending | Gate on this PR. |
+| AC-04 | Pending (follow-up) | First product PR (planned: CHG-005). |
+| AC-05 | Passed | Framework matcher: `scripts/hooks/pre-push` is a framework path with `ci-governance` L3. Control: `src/worker.ts` is not a framework path. |
 
 Independent review: required (L3). Not started.
 
-Outstanding items / exceptions: AC-04 depends on the first product PR (planned: CHG-005).
+Outstanding items / exceptions: AC-04 depends on the first product PR.
 
 Delivery: not merged.
