@@ -19,3 +19,4 @@ Do not rewrite an accepted decision to erase its tradeoffs. You may explicitly c
 | [0001](0001-hosting-on-cloudflare-workers.md) | Host the application on Cloudflare Workers | `accepted` |
 | [0002](0002-cv-storage-in-dedicated-r2-bucket.md) | Store CVs in a dedicated Cloudflare R2 bucket | `accepted` |
 | [0003](0003-editor-authentication-with-basic-auth.md) | Protect the editor with HTTP Basic Authentication | `accepted` |
+| [0004](0004-public-urls-under-akiadi-com-cv.md) | Public URLs under akiadi.com/cv | `accepted` |
