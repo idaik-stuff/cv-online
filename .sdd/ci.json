@@ -22,7 +22,8 @@
     "scripts/check-ci",
     "scripts/check-ci-setup",
     "scripts/sdd/**",
-    "scripts/tests/**"
+    "scripts/tests/**",
+    "scripts/hooks/**"
   ],
   "design_paths": [
     "README.md",

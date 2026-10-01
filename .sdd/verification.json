@@ -72,6 +72,17 @@
         "--silent"
       ],
       "timeout_seconds": 300
+    },
+    {
+      "id": "product-install",
+      "kind": "product",
+      "argv": [
+        "{python}",
+        "-I",
+        "-c",
+        "import os, shutil, subprocess, sys\nroot = os.path.realpath(os.getcwd())\ndef tool(name):\n    path = shutil.which(name)\n    if not path:\n        sys.exit('product-install: ' + name + ' must be on PATH')\n    real = os.path.realpath(path)\n    if os.path.normcase(real).startswith(os.path.normcase(root) + os.sep):\n        sys.exit('product-install: refusing ' + name + ' resolved inside the repository')\n    return real\nnode, npm = tool('node'), tool('npm')\nsubprocess.run([node, '--version'], check=True)\nsubprocess.run([npm, '--version'], check=True)\n# Dependency install scripts must be gated by package.json allowScripts.\nprobe = subprocess.run([npm, 'install-scripts', '--help'], capture_output=True)\nif probe.returncode != 0:\n    sys.exit('product-install: this npm does not support allowScripts; npm 11 with install-script approvals is required')\nsys.exit(subprocess.call([npm, 'ci', '--no-audit', '--no-fund']))\n"
+      ],
+      "timeout_seconds": 300
     }
   ],
   "profiles": {
@@ -88,6 +99,7 @@
     },
     "product": {
       "focused": [
+        "product-install",
         "worker-tests"
       ],
       "standard": [

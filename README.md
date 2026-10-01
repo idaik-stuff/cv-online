@@ -46,6 +46,7 @@ Requires Node.js 22+ (developed with 24 LTS). Run `npm install` once.
 
 | Operation | Command | Scope / prerequisites |
 | --- | --- | --- |
+| Install dependencies | `npm ci` | Registered as `product-install` (product, focused, first), which runs on every product-target verification. It reinstalls `node_modules` from the lockfile. It requires an npm with install-script approvals (`allowScripts`, npm 11) and fails otherwise. |
 | Worker tests | `npm test` | Integration tests in the local Workers runtime with a simulated R2 bucket and test-only credentials. Registered as `worker-tests` (product, focused). |
 | Typecheck | `npm run typecheck` | TypeScript, no emit. Registered as `typecheck` (product, standard). |
 | Local server | `npm run dev` | Editor at `http://localhost:8787/cv/admin/`, CVs at `/cv/{slug}`. Needs `.dev.vars` (copy `.dev.vars.example`; ignored by Git). |
@@ -139,7 +140,7 @@ Do not fill the PRD, MVP, or architecture with assumptions.
 | --- | --- |
 | `CODEOWNERS` | Configured on `main` (bootstrap). Owner validation is not available on this plan (the GitHub API returns 404). |
 | `sdd-gate` | Configured to run on every pull request. Observed results are recorded in each change's plan. |
-| Product checks in CI | Not runnable yet: the CI does not install Node dependencies. Prepared by CHG-007. |
+| Product checks in CI | Configured by [CHG-007](docs/specs/CHG-007-ci-product-checks/plan.md): the registered `product-install` check runs `npm ci` from the lockfile before the tests and requires npm install-script approvals. Not yet observed in CI: the runner's npm version is unknown until the first product pull request. |
 | Rulesets / required checks | Not enforced. The repository is private on GitHub Free; respecting the gate depends on the change workflow. |
 
 The [workflow](.github/workflows/sdd.yml) reads classification and check registration
