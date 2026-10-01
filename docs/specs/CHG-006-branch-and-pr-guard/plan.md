@@ -1,6 +1,6 @@
 # Plan: CHG-006 | Integrate every change through a branch and a pull request
 
-Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01 (scope revision accepted the same day).
+Status: `completed` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01 (scope revision accepted the same day).
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection
@@ -96,7 +96,7 @@ Verified version or diff: working tree on top of the branch commit `0fc576c` (ba
 | AC / check | Result | Evidence summary / reference |
 | --- | --- | --- |
 | AC-01, AC-02, AC-04 | Passed | Text in `AGENTS.md` and `README.md`, confirmed by the round 2 re-review. |
-| AC-05 | Pending | After the PR is opened. |
+| AC-05 | Passed (gate) | [PR #1](https://github.com/idaik-stuff/cv-online/pull/1), head `00f7344`, the first live run ([Actions run 36911909819](https://github.com/idaik-stuff/cv-online/actions/runs/36911909819)): `sdd-policy`, `sdd-verify`, and `sdd-gate` all pass; merge state `CLEAN`. This evidence commit triggers a new run, which must also pass before merge. The merge is done by the owner (solo-maintainer approval policy above). |
 | AC-06 | Passed | `verify broad` after the revision: framework checks, worker-tests 101/101, typecheck. Local `--target` defaults to `product`, a superset of the framework checks that CI selects for these paths; this is not the same run as CI. |
 | Adapters | Passed | `sync_adapters.py --check`: 0 stale. |
 
@@ -113,4 +113,4 @@ Outstanding items / exceptions:
 - Bootstrap `55e2e15` (section 9 record above, with its outstanding owner validation).
 - **Sequencing (review N5):** deliver CHG-007 before any product-path change, such as CHG-005. Until then, a product PR's gate fails for a reason outside the change and would need a section 9 exception; exceptions must not become routine.
 
-Delivery: not merged.
+Delivery: merged into `main` by the owner after a passing gate. The merge commit is in Git history; no deployment applies, because this change is documentation and governance only.

@@ -1,6 +1,6 @@
 # Spec: CHG-006 | Integrate every change through a branch and a pull request
 
-Status: `approved` | Level: `L3` | Level rationale: changes `AGENTS.md` and the integration workflow, which the risk rule `ci-governance` (`.sdd/risk-rules.json`) puts at L3 minimum, with independent review required.
+Status: `implemented` | Level: `L3` | Level rationale: changes `AGENTS.md` and the integration workflow, which the risk rule `ci-governance` (`.sdd/risk-rules.json`) puts at L3 minimum, with independent review required.
 Owner: Idaika Iglesias | Scope accepted by / date: Idaika Iglesias, 2026-10-01.
 
 ## Problem and goal
