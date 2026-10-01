@@ -66,8 +66,16 @@ Verified version or diff: branch `chg-008-pre-push-guard` (base `9e9f232`). Envi
 | AC-06 | Pending | PR gate. |
 | File properties | Passed | Git mode `100755`; no CR characters; `.gitattributes` forces LF. |
 
-Independent review: required (L3). Not started.
+Independent review (L3), 2026-10-01: the `sdd-independent-review` subagent in a fresh context, read-only, same model family (not a human review). It reviewed 4 files; the packet wrongly said 6, and `git diff --stat` confirms 4.
+- **Result:** no blocking findings. The hook's logic and portability were judged sound; the merge flow, CI, and change-branch pushes are unaffected.
+- **Non-blocking findings, all fixed with wording only** (hook behavior unchanged):
+  - F1: AC-04 wording ('before any remote ref is updated');
+  - F2: the relative `core.hooksPath` runs the checkout's copy, so commits that predate it are unprotected (header and README);
+  - F3: an authorized exception uses `--no-verify` plus an exception record (header and README);
+  - F4: the guard applies to every remote (header and README);
+  - F5: outstanding items listed.
+- **Limitations noted by the reviewer:** AC-01–AC-03 ran via `sh` (logic only); AC-04 ran on Windows only; no dash/busybox test. All are accepted for a local opt-in guard.
 
-Outstanding items / exceptions: none.
+Outstanding items / exceptions: AC-06 (PR gate).
 
 Delivery: not merged. The hook is installed in the owner's working clone.

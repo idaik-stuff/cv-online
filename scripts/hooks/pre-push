@@ -9,6 +9,11 @@
 # - core.hooksPath replaces .git/hooks; add any other hooks to this folder.
 # - Guards pushes only, not local commits on main.
 # - The branch name is fixed; update it if the default branch is renamed.
+# - It applies to every remote (forks and mirrors included).
+# - core.hooksPath is relative: the copy in the current checkout runs, so
+#   commits that predate this file are unprotected.
+# - An authorized AGENTS.md exception (CI trust bootstrap) pushes with
+#   --no-verify and must have its exception record in a plan.
 
 protected="refs/heads/main"
 

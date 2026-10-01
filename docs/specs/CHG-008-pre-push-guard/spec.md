@@ -42,7 +42,7 @@ Does not include:
 | AC-01 | Hook input for a push to `refs/heads/main` | Run the hook | Exit 1 with a message naming the rule. |
 | AC-02 | Hook input for a push to another branch, or a tag | Run the hook | Exit 0. |
 | AC-03 | A push that contains main among other refs, and a deletion of main | Run the hook | Exit 1. |
-| AC-04 | Hook installed in this clone | A real `git push origin HEAD:main --dry-run` | Refused by the hook before contacting the remote. |
+| AC-04 | Hook installed in this clone | A real `git push origin HEAD:main --dry-run` | Refused by the hook before any remote ref is updated or objects are sent. |
 | AC-05 | README | Read *Change workflow* | Install command and its limits documented. |
 | AC-06 | This PR | `sdd-gate` | Passes (framework target, L3). |
 
