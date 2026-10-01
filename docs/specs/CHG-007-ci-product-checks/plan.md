@@ -1,6 +1,6 @@
 # Plan: CHG-007 | Make product checks runnable in CI
 
-Status: `approved` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
+Status: `in-progress` | Technical owner: Idaika Iglesias | Accepted by / date: Idaika Iglesias, 2026-10-01.
 Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review.
 
 ## System inspection

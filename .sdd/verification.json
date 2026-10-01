@@ -72,6 +72,16 @@
         "--silent"
       ],
       "timeout_seconds": 300
+    },
+    {
+      "id": "product-install",
+      "kind": "product",
+      "argv": [
+        "{python}",
+        "-c",
+        "import shutil, subprocess, sys\nnode, npm = shutil.which('node'), shutil.which('npm')\nif not node or not npm:\n    sys.exit('product-install: node and npm must be on PATH')\nsubprocess.run([node, '--version'], check=True)\nsubprocess.run([npm, '--version'], check=True)\nsys.exit(subprocess.call([npm, 'ci', '--no-audit', '--no-fund']))\n"
+      ],
+      "timeout_seconds": 600
     }
   ],
   "profiles": {
@@ -88,6 +98,7 @@
     },
     "product": {
       "focused": [
+        "product-install",
         "worker-tests"
       ],
       "standard": [
