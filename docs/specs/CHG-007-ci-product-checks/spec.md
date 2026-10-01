@@ -78,6 +78,10 @@ Does not include:
 
 Scope acceptance: accepted by Idaika Iglesias on 2026-10-01. The runner-Node uncertainty is resolved by observation (AC-04), not before implementation.
 
+**Revision after the independent review** (it tightens the spec and widens nothing):
+- AC-04 and the runner uncertainty now include npm install-script approvals.
+- **Re-acceptance:** pending the owner's confirmation; requested together with the PR merge approval.
+
 Related plan: [plan.md](plan.md). States and completion rules: [specs index](../README.md).
 
 Upon completion, record evidence and delivery status in the plan. If another change replaces this behavior, reference that change without rewriting history.

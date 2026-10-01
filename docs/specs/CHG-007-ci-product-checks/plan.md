@@ -18,12 +18,13 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
 
 ## Technical approach
 
-1. **Register the check `product-install`** (kind `product`, timeout 600 s). It is a fixed `{python} -c` program that:
+1. **Register the check `product-install`** (kind `product`, timeout 300 s, final form at `3ff2627`). It is a fixed `{python} -I -c` program that:
+   - resolves `node` and `npm` on PATH and refuses either one if it resolves inside the repository;
    - prints `node --version` and `npm --version`;
-   - runs `npm ci --no-audit --no-fund` through the absolute path from `shutil.which`, and exits with npm's status;
-   - fails with a clear message if `npm` or `node` is missing.
+   - probes `npm install-scripts --help` and fails if npm lacks install-script approvals (`allowScripts`);
+   - runs `npm ci --no-audit --no-fund` and exits with npm's status.
 
-   Put it first in `profiles.product.focused`, so it runs before `worker-tests`, and `typecheck` follows in `standard`. No shell string, no secrets, no flags that skip the install-script allowlist.
+   It comes first in `profiles.product.focused`, so it runs before `worker-tests`, and `typecheck` follows in `standard`. No shell string, no secrets, no flags that skip the install-script allowlist. The design changed after the independent review; see deviation 3.
 2. **`.sdd/ci.json`:** add `"scripts/hooks/**"` to `framework_paths`.
 3. **`.sdd/risk-rules.json`:** add `"scripts/hooks/**"` to the `ci-governance` paths.
 4. **README:** CI status row "Product checks in CI" → configured by CHG-007; first observation pending on the first product PR.
@@ -46,7 +47,7 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
 
 | Area | Decision, check, or reason for non-applicability |
 | --- | --- |
-| Verification controls | The install is deterministic (lockfile) and reviewable, with no secrets and no shell. Python runs isolated (`-I`), and `node`/`npm` resolved inside the repository are refused. **Install-script gating:** dependency install scripts run only if listed in `package.json` `allowScripts`, which npm 11 enforces by default (it skips unlisted scripts). The check probes `npm install-scripts` and fails on an npm without that capability, so CI never installs with ungated scripts. `allowScripts` lives in the candidate's `package.json`, so it is a **reviewed-diff control**, not a base-trusted one. A failed install fails the gate rather than skipping tests. |
+| Verification controls | The install is deterministic (lockfile) and reviewable, with no secrets and no shell. Python runs isolated (`-I`), and `node`/`npm` resolved inside the repository are refused. **Install-script gating:** dependency install scripts run only if listed in `package.json` `allowScripts`, which npm 11 enforces by default (it skips unlisted scripts). The check probes `npm install-scripts` and fails on an npm without that capability, so CI never installs with an npm that lacks install-script approvals. The probe proves the capability exists, not that every configuration keeps it in force. The settings that govern installation are candidate-controlled, **reviewed-diff controls**, not base-trusted ones: `allowScripts` and the root lifecycle scripts in `package.json`, and any repository `.npmrc`. A PR that changes them must be reviewed as such. A failed install fails the gate rather than skipping tests. |
 | Supply chain | `npm ci` installs exactly the locked versions; any dependency change still arrives through a reviewed PR that changes the lockfile. Not covered: the integrity of the npm registry itself (accepted). |
 | Local developer impact | `npm ci` deletes and reinstalls `node_modules` on each product-target local run. This is slower (about 7–17 s observed) and follows the same steps as CI; equality with CI is confirmed only once AC-04 shows the CI versions. Accepted. |
 | CI trust | The base registry governs execution; this PR cannot alter its own run. AC-04 is observed on the first product PR and recorded here. |
@@ -78,6 +79,7 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
 ## Deviations and decisions during execution
 
 1. **AC-05 uses the framework's own matcher.** The check calls `matches()` from `scripts/sdd/changes.py`, which `ci.py` uses, instead of the CI unit path.
+2. **Windows file locks** (observation, no scope change). The first AC-02 run failed: `npm ci` got `EPERM` unlinking a native module (`rolldown-binding…node`) that orphaned processes still held. Those were an `npm test`/Vitest/esbuild set left by an earlier hung run in CHG-002. The processes were stopped and the run repeated: passed. CI runners start clean, so this does not apply there. Locally, close running test or dev processes before a product-target verification.
 3. **Hardening after the independent review** (`3ff2627`):
    - **npm capability probe (F1):** fail if `npm install-scripts` is unavailable;
    - **isolation (F2):** `python -I`, and node/npm resolved inside the repository are refused;
@@ -85,7 +87,6 @@ Spec: [spec.md](spec.md) | Verification scope: `broad` (L3) + independent review
    - Negative tests: a planted `npm.cmd` in the repository is refused, and a fake npm 10 without the approval command fails before installing anything.
 4. **Reviewed platform adapter (F3).** On Windows the runner refuses `.cmd`/`.bat` as `argv[0]`. This check reaches `npm.cmd` through Python's `subprocess`, which bypasses that guard. This is accepted as the reviewed platform adapter for npm, on the condition that **it only ever passes constant arguments** (no user- or diff-derived values), so batch-argument injection does not apply.
 5. **AC-01 command.** Run as `broad --level L3` (the change's real level, a superset of the specified `focused --level L2`).
-2. **Windows file locks** (observation, no scope change). The first AC-02 run failed: `npm ci` got `EPERM` unlinking a native module (`rolldown-binding…node`) that orphaned processes still held. Those were an `npm test`/Vitest/esbuild set left by an earlier hung run in CHG-002. The processes were stopped and the run repeated: passed. CI runners start clean, so this does not apply there. Locally, close running test or dev processes before a product-target verification.
 
 ## Completion evidence
 
@@ -113,7 +114,10 @@ Independent review: round 1 by the `sdd-independent-review` subagent (fresh cont
   - AC-04 stays an explicit outstanding item;
   - the next product PR must reference it;
   - **proposal:** a minimal probe product PR right after merge, so CI viability does not depend on feature work.
-- Re-review: pending.
+- **Round 2 (re-review, same reviewer context):** no blocking findings; F1–F6 resolved.
+  - R1 (approach step 1 and deviation order) and R2 (reviewed-diff controls, softened wording) are fixed.
+  - R3 is left to AC-04: the probe's behavior on a real older npm will be seen when the runner's npm version shows in the CI log.
+  - R4: the owner's re-acceptance of the tightened AC-04 and the npm uncertainty is pending and is requested with the PR #2 merge approval (recorded in the spec once given).
 
 Outstanding items / exceptions:
 - **AC-04:** observe on the first product PR. If it fails because of the runner's Node or npm, open an L3 follow-up to pin them; never skip the check.
