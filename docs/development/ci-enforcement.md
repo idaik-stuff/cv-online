@@ -185,7 +185,8 @@ test pass. See [GitHub's secure-use guidance][security].
 
 Actions are pinned to full upstream commit SHAs, with release comments for
 review. Python 3.13 and `ubuntu-24.04` are CI infrastructure choices, not the
-application stack. Both hosted runner images and interpreter patch versions
+application stack. This project also pins Node.js 24.21.0 in the `verify` job
+(CHG-010) as the runtime for its registered product checks. Both hosted runner images and interpreter patch versions
 can change. The report records the actual interpreter and operating system;
 this is not a completely reproducible software supply chain.
 
@@ -334,6 +335,7 @@ Keep real setup, lint, types, unit/integration/contract tests, migration checks,
 and risk-specific checks in `.sdd/verification.json`. The commands must be
 reviewed, noninteractive, bounded, and appropriate for the environment.
 Nothing in this release selects npm, uv, Maven, Docker, a database, or a cloud.
+This project registers `product-install` (npm, CHG-007) and its runtime (CHG-010).
 
 The template begins with no product checks. Adding or changing a check is a
 reviewed framework/configuration change (L3 under the default risk rules). Use
@@ -395,4 +397,5 @@ establish that your repository has those settings enabled.
 
 Pinned actions: [checkout v7.0.1](https://github.com/actions/checkout/commit/3d3c42e5aac5ba805825da76410c181273ba90b1),
 [setup-python v7.0.0](https://github.com/actions/setup-python/commit/5fda3b95a4ea91299a34e894583c3862153e4b97),
+[setup-node v7.0.0](https://github.com/actions/setup-node/commit/820762786026740c76f36085b0efc47a31fe5020) (this project, CHG-010),
 and [upload-artifact v7.0.1](https://github.com/actions/upload-artifact/commit/043fb46d1a93c77aae656e7c1c64a875d1fc6a0a).
