@@ -55,7 +55,7 @@ Does not include:
 | AC-01 | A clean checkout without `node_modules`, Windows | `python scripts/verify focused --base <base> --level L2` (product target) | Dependencies are installed from the lockfile; `worker-tests` passes; the Node and npm versions are printed. |
 | AC-02 | Existing local checkout | `python scripts/verify broad` | Passes; the install is idempotent (it reinstalls from the lockfile). |
 | AC-03 | This PR (framework paths only) | `sdd-gate` | Passes on the framework target. |
-| AC-04 | The first product-path PR after merge (planned: CHG-005) | `sdd-gate` | The install runs on the CI runner, the product checks run, and the gate result reflects the change itself. Recorded here as a follow-up. |
+| AC-04 | The first product-path PR after merge | `sdd-gate` | The CI job log shows the Node and npm versions; the install-script approval probe passes; the install and product checks run; the gate result reflects the change itself. Recorded here as a follow-up. |
 | AC-05 | `.sdd/ci.json` and `.sdd/risk-rules.json` | A path `scripts/hooks/pre-push` | Matches `framework_paths` and the `ci-governance` L3 floor. |
 
 ## Constraints and compatibility
@@ -72,7 +72,7 @@ Does not include:
 
 | Question / assumption | Owner | Blocks | Resolution or evidence |
 | --- | --- | --- | --- |
-| The runner's preinstalled Node meets the toolchain's requirements (Vitest 4, Wrangler 4, TypeScript 7). | Idaika Iglesias | AC-04 | Unknown until the first product PR. If unsuitable, a follow-up change pins Node in the workflow (L3). |
+| The runner's preinstalled Node meets the toolchain's requirements (Vitest 4, Wrangler 4, TypeScript 7), **and its npm supports install-script approvals (`allowScripts`, npm 11)**. The check enforces the npm capability and fails otherwise (independent review F1). | Idaika Iglesias | AC-04 | Unknown until the first product PR. If unsuitable, the gate fails visibly, and a follow-up change pins Node/npm in the workflow (L3). |
 
 ## Acceptance and next steps
 
