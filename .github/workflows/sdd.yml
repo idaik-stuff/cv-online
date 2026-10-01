@@ -95,6 +95,12 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: '3.13'
+      # Product checks need install-script approvals (npm 11, CHG-010); match local Node.js.
+      - name: Set up the product runtime
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24.21.0'
+          package-manager-cache: false
       # Register product dependency setup as reviewed commands in the check registry.
       # Do not add secrets, persistent runners, caches, or deployment to this job.
       - name: Execute checks selected by the base registry
